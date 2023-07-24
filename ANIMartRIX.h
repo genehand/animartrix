@@ -46,7 +46,7 @@ struct render_parameters {
   float high_limit = 1;                                            
 };
 
-render_parameters animation;     // all animation parameters in one place
+render_parameters art_animation;     // all art_animation parameters in one place
 struct oscillators {
 
   float master_speed;            // global transition speed
@@ -160,7 +160,7 @@ float multiply(float &a, float&b) {
 
 // makes low brightness darker
 // sets the black point high = more contrast 
-// animation.low_limit should be 0 for best results
+// art_animation.low_limit should be 0 for best results
 float colorburn(float &a, float&b) {  
 
   return (1-((1-a/255.f) / (b/255.f)))*255.f;
@@ -288,13 +288,13 @@ void run_default_oscillators(){
 // Calculate the noise value at this point based on the 5 dimensional manipulation of 
 // the underlaying coordinates.
 
-float render_value(render_parameters &animation) {
+float render_value(render_parameters &art_animation) {
 
   // convert polar coordinates back to cartesian ones
 
-  float newx = (animation.offset_x + animation.center_x - (cosf(animation.angle) * animation.dist)) * animation.scale_x;
-  float newy = (animation.offset_y + animation.center_y - (sinf(animation.angle) * animation.dist)) * animation.scale_y;
-  float newz = (animation.offset_z + animation.z) * animation.scale_z;
+  float newx = (art_animation.offset_x + art_animation.center_x - (cosf(art_animation.angle) * art_animation.dist)) * art_animation.scale_x;
+  float newy = (art_animation.offset_y + art_animation.center_y - (sinf(art_animation.angle) * art_animation.dist)) * art_animation.scale_y;
+  float newz = (art_animation.offset_z + art_animation.z) * art_animation.scale_z;
 
   // render noisevalue at this new cartesian point
 
@@ -304,10 +304,10 @@ float render_value(render_parameters &animation) {
   // B) scale the result to a 0-255 range (assuming you want 8 bit color depth per rgb chanel)
   // Here happens the contrast boosting & the brightness mapping
 
-  if (raw_noise_field_value < animation.low_limit)  raw_noise_field_value =  animation.low_limit;
-  if (raw_noise_field_value > animation.high_limit) raw_noise_field_value = animation.high_limit;
+  if (raw_noise_field_value < art_animation.low_limit)  raw_noise_field_value =  art_animation.low_limit;
+  if (raw_noise_field_value > art_animation.high_limit) raw_noise_field_value = art_animation.high_limit;
 
-  float scaled_noise_value = map_float(raw_noise_field_value, animation.low_limit, animation.high_limit, 0, 255);
+  float scaled_noise_value = map_float(raw_noise_field_value, art_animation.low_limit, art_animation.high_limit, 0, 255);
 
   return scaled_noise_value;
 }
@@ -460,33 +460,33 @@ void Rotating_Blob() {
   for (int x = 0; x < num_x; x++) {
     for (int y = 0; y < num_y; y++) {
   
-      // describe and render animation layers
-      animation.scale_x    = 0.05;
-      animation.scale_y    = 0.05;
-      animation.offset_x   = 0;
-      animation.offset_y   = 0;
-      animation.offset_z   = 100;
-      animation.angle      = polar_theta[x][y] +  move.radial[0];
-      animation.dist       = distance[x][y];
-      animation.z          = move.linear[0];
-      animation.low_limit  = -1;
-      float show1          = render_value(animation);
+      // describe and render art_animation layers
+      art_animation.scale_x    = 0.05;
+      art_animation.scale_y    = 0.05;
+      art_animation.offset_x   = 0;
+      art_animation.offset_y   = 0;
+      art_animation.offset_z   = 100;
+      art_animation.angle      = polar_theta[x][y] +  move.radial[0];
+      art_animation.dist       = distance[x][y];
+      art_animation.z          = move.linear[0];
+      art_animation.low_limit  = -1;
+      float show1          = render_value(art_animation);
       
-      animation.angle      = polar_theta[x][y] - move.radial[1] + show1/512.0;
-      animation.dist       = distance[x][y] * show1/255.0;
-      animation.low_limit  = 0;
-      animation.z          = move.linear[1];
-      float show2          = render_value(animation);
+      art_animation.angle      = polar_theta[x][y] - move.radial[1] + show1/512.0;
+      art_animation.dist       = distance[x][y] * show1/255.0;
+      art_animation.low_limit  = 0;
+      art_animation.z          = move.linear[1];
+      float show2          = render_value(art_animation);
 
-      animation.angle      = polar_theta[x][y] - move.radial[2] + show1/512.0;
-      animation.dist       = distance[x][y] * show1/220.0;
-      animation.z          = move.linear[2];
-      float show3          = render_value(animation);
+      art_animation.angle      = polar_theta[x][y] - move.radial[2] + show1/512.0;
+      art_animation.dist       = distance[x][y] * show1/220.0;
+      art_animation.z          = move.linear[2];
+      float show3          = render_value(art_animation);
 
-      animation.angle      = polar_theta[x][y] - move.radial[3] + show1/512.0;
-      animation.dist       = distance[x][y] * show1/200.0;
-      animation.z          = move.linear[3];
-      float show4          = render_value(animation);
+      art_animation.angle      = polar_theta[x][y] - move.radial[3] + show1/512.0;
+      art_animation.dist       = distance[x][y] * show1/200.0;
+      art_animation.z          = move.linear[3];
+      float show4          = render_value(art_animation);
 
       // colormapping
       pixel.red   = (show2+show4)/2;
@@ -523,27 +523,27 @@ void Chasing_Spirals() {
   for (int x = 0; x < num_x; x++) {
     for (int y = 0; y < num_y; y++) {
   
-      // describe and render animation layers
-      animation.angle      = 3 * polar_theta[x][y] +  move.radial[0] - distance[x][y]/3;
-      animation.dist       = distance[x][y];
-      animation.scale_z    = 0.1;  
-      animation.scale_y    = 0.1;
-      animation.scale_x    = 0.1;
-      animation.offset_x   = move.linear[0];
-      animation.offset_y   = 0;
-      animation.offset_z   = 0;
-      animation.z          = 0;
-      float show1          = render_value(animation);
+      // describe and render art_animation layers
+      art_animation.angle      = 3 * polar_theta[x][y] +  move.radial[0] - distance[x][y]/3;
+      art_animation.dist       = distance[x][y];
+      art_animation.scale_z    = 0.1;  
+      art_animation.scale_y    = 0.1;
+      art_animation.scale_x    = 0.1;
+      art_animation.offset_x   = move.linear[0];
+      art_animation.offset_y   = 0;
+      art_animation.offset_z   = 0;
+      art_animation.z          = 0;
+      float show1          = render_value(art_animation);
 
-      animation.angle      = 3 * polar_theta[x][y] +  move.radial[1] - distance[x][y]/3;
-      animation.dist       = distance[x][y];
-      animation.offset_x   = move.linear[1];
-      float show2          = render_value(animation);
+      art_animation.angle      = 3 * polar_theta[x][y] +  move.radial[1] - distance[x][y]/3;
+      art_animation.dist       = distance[x][y];
+      art_animation.offset_x   = move.linear[1];
+      float show2          = render_value(art_animation);
 
-      animation.angle      = 3 * polar_theta[x][y] +  move.radial[2] - distance[x][y]/3;
-      animation.dist       = distance[x][y];
-      animation.offset_x   = move.linear[2];
-      float show3          = render_value(animation);
+      art_animation.angle      = 3 * polar_theta[x][y] +  move.radial[2] - distance[x][y]/3;
+      art_animation.dist       = distance[x][y];
+      art_animation.offset_x   = move.linear[2];
+      float show3          = render_value(art_animation);
 
       // colormapping
       float radius = radial_filter_radius;
@@ -581,29 +581,29 @@ void Rings() {
   for (int x = 0; x < num_x; x++) {
     for (int y = 0; y < num_y; y++) {
   
-      // describe and render animation layers
-      animation.angle      = 5;
-      animation.scale_x    = 0.2;
-      animation.scale_y    = 0.2;
-      animation.scale_z    = 1;
-      animation.dist       = distance[x][y];
-      animation.offset_y   = -move.linear[0];
-      animation.offset_x   = 0;
-      float show1          = render_value(animation);
+      // describe and render art_animation layers
+      art_animation.angle      = 5;
+      art_animation.scale_x    = 0.2;
+      art_animation.scale_y    = 0.2;
+      art_animation.scale_z    = 1;
+      art_animation.dist       = distance[x][y];
+      art_animation.offset_y   = -move.linear[0];
+      art_animation.offset_x   = 0;
+      float show1          = render_value(art_animation);
 
-       // describe and render animation layers
-      animation.angle      = 10;
+       // describe and render art_animation layers
+      art_animation.angle      = 10;
       
-      animation.dist       = distance[x][y];
-      animation.offset_y   = -move.linear[1];
-      float show2          = render_value(animation);
+      art_animation.dist       = distance[x][y];
+      art_animation.offset_y   = -move.linear[1];
+      float show2          = render_value(art_animation);
 
-       // describe and render animation layers
-      animation.angle      = 12;
+       // describe and render art_animation layers
+      art_animation.angle      = 12;
       
-      animation.dist       = distance[x][y];
-      animation.offset_y   = -move.linear[2];
-      float show3          = render_value(animation);
+      art_animation.dist       = distance[x][y];
+      art_animation.offset_y   = -move.linear[2];
+      float show3          = render_value(art_animation);
 
       // colormapping
       pixel.red   = show1;
@@ -637,21 +637,21 @@ void Waves() {
   for (int x = 0; x < num_x; x++) {
     for (int y = 0; y < num_y; y++) {
   
-      // describe and render animation layers
-      animation.angle      = polar_theta[x][y];
-      animation.scale_x    = 0.1;
-      animation.scale_y    = 0.1;
-      animation.scale_z    = 0.1;
-      animation.dist       = distance[x][y];
-      animation.offset_y   = 0;
-      animation.offset_x   = 0;
-      animation.z          = 2*distance[x][y] - move.linear[0];
-      float show1          = render_value(animation);
+      // describe and render art_animation layers
+      art_animation.angle      = polar_theta[x][y];
+      art_animation.scale_x    = 0.1;
+      art_animation.scale_y    = 0.1;
+      art_animation.scale_z    = 0.1;
+      art_animation.dist       = distance[x][y];
+      art_animation.offset_y   = 0;
+      art_animation.offset_x   = 0;
+      art_animation.z          = 2*distance[x][y] - move.linear[0];
+      float show1          = render_value(art_animation);
 
-      animation.angle      = polar_theta[x][y];
-      animation.dist       = distance[x][y];
-      animation.z          = 2*distance[x][y] - move.linear[1];
-      float show2          = render_value(animation);
+      art_animation.angle      = polar_theta[x][y];
+      art_animation.dist       = distance[x][y];
+      art_animation.z          = 2*distance[x][y] - move.linear[1];
+      float show2          = render_value(art_animation);
 
   
       // colormapping
@@ -686,26 +686,26 @@ void Center_Field() {
   for (int x = 0; x < num_x; x++) {
     for (int y = 0; y < num_y; y++) {
   
-      // describe and render animation layers
-      animation.angle      = polar_theta[x][y];
-      animation.scale_x    = 0.07;
-      animation.scale_y    = 0.07;
-      animation.scale_z    = 0.1;
-      animation.dist       = 5*sqrtf(distance[x][y]);
-      animation.offset_y   = move.linear[0];
-      animation.offset_x   = 0;
-      animation.z          = 0;
-      float show1          = render_value(animation);
+      // describe and render art_animation layers
+      art_animation.angle      = polar_theta[x][y];
+      art_animation.scale_x    = 0.07;
+      art_animation.scale_y    = 0.07;
+      art_animation.scale_z    = 0.1;
+      art_animation.dist       = 5*sqrtf(distance[x][y]);
+      art_animation.offset_y   = move.linear[0];
+      art_animation.offset_x   = 0;
+      art_animation.z          = 0;
+      float show1          = render_value(art_animation);
 
-      animation.angle      = polar_theta[x][y];
-      animation.scale_x    = 0.07;
-      animation.scale_y    = 0.07;
-      animation.scale_z    = 0.1;
-      animation.dist       = 4*sqrtf(distance[x][y]);
-      animation.offset_y   = move.linear[0];
-      animation.offset_x   = 0;
-      animation.z          = 0;
-      float show2          = render_value(animation);
+      art_animation.angle      = polar_theta[x][y];
+      art_animation.scale_x    = 0.07;
+      art_animation.scale_y    = 0.07;
+      art_animation.scale_z    = 0.1;
+      art_animation.dist       = 4*sqrtf(distance[x][y]);
+      art_animation.offset_y   = move.linear[0];
+      art_animation.offset_x   = 0;
+      art_animation.z          = 0;
+      float show2          = render_value(art_animation);
 
      
 
@@ -744,28 +744,28 @@ void Distance_Experiment() {
   for (int x = 0; x < num_x; x++) {
     for (int y = 0; y < num_y; y++) {
   
-      // describe and render animation layers
-      animation.dist       = powf(distance[x][y], 0.5);
-      animation.angle      = polar_theta[x][y] + move.radial[0];
-      animation.scale_x    = 0.07;
-      animation.scale_y    = 0.07;
-      animation.scale_z    = 0.1;
-      animation.offset_y   = move.linear[0];
-      animation.offset_x   = 0;
-      animation.offset_z   = 0;
-      animation.z          = 0;
-      float show1          = render_value(animation);
+      // describe and render art_animation layers
+      art_animation.dist       = powf(distance[x][y], 0.5);
+      art_animation.angle      = polar_theta[x][y] + move.radial[0];
+      art_animation.scale_x    = 0.07;
+      art_animation.scale_y    = 0.07;
+      art_animation.scale_z    = 0.1;
+      art_animation.offset_y   = move.linear[0];
+      art_animation.offset_x   = 0;
+      art_animation.offset_z   = 0;
+      art_animation.z          = 0;
+      float show1          = render_value(art_animation);
 
-      animation.dist       = powf(distance[x][y], 0.6);
-      animation.angle      = polar_theta[x][y] + move.noise_angle[2];
-      animation.scale_x    = 0.07;
-      animation.scale_y    = 0.07;
-      animation.scale_z    = 0.1;
-      animation.offset_y   = move.linear[1];
-      animation.offset_x   = 0;
-      animation.offset_z   = 0;
-      animation.z          = 0;
-      float show2          = render_value(animation);
+      art_animation.dist       = powf(distance[x][y], 0.6);
+      art_animation.angle      = polar_theta[x][y] + move.noise_angle[2];
+      art_animation.scale_x    = 0.07;
+      art_animation.scale_y    = 0.07;
+      art_animation.scale_z    = 0.1;
+      art_animation.offset_y   = move.linear[1];
+      art_animation.offset_x   = 0;
+      art_animation.offset_z   = 0;
+      art_animation.z          = 0;
+      float show2          = render_value(art_animation);
       
       // colormapping
       pixel.red   = show1+show2;
@@ -804,35 +804,35 @@ void Caleido1() {
   for (int x = 0; x < num_x; x++) {
     for (int y = 0; y < num_y; y++) {
   
-      // describe and render animation layers
-      animation.dist       = distance[x][y] * (2 + move.directional[0]) / 3;
-      animation.angle      = 3 * polar_theta[x][y] + 3 * move.noise_angle[0] + move.radial[4];
-      animation.scale_x    = 0.1;
-      animation.scale_y    = 0.1;
-      animation.scale_z    = 0.1;
-      animation.offset_y   = 2 * move.linear[0];
-      animation.offset_x   = 0;
-      animation.offset_z   = 0;
-      animation.z          = move.linear[0];
-      float show1          = render_value(animation);
+      // describe and render art_animation layers
+      art_animation.dist       = distance[x][y] * (2 + move.directional[0]) / 3;
+      art_animation.angle      = 3 * polar_theta[x][y] + 3 * move.noise_angle[0] + move.radial[4];
+      art_animation.scale_x    = 0.1;
+      art_animation.scale_y    = 0.1;
+      art_animation.scale_z    = 0.1;
+      art_animation.offset_y   = 2 * move.linear[0];
+      art_animation.offset_x   = 0;
+      art_animation.offset_z   = 0;
+      art_animation.z          = move.linear[0];
+      float show1          = render_value(art_animation);
 
-      animation.dist       = distance[x][y] * (2 + move.directional[1]) / 3;
-      animation.angle      = 4 * polar_theta[x][y] + 3 * move.noise_angle[1] + move.radial[4];
-      animation.offset_x   = 2 * move.linear[1];
-      animation.z          = move.linear[1];
-      float show2          = render_value(animation);
+      art_animation.dist       = distance[x][y] * (2 + move.directional[1]) / 3;
+      art_animation.angle      = 4 * polar_theta[x][y] + 3 * move.noise_angle[1] + move.radial[4];
+      art_animation.offset_x   = 2 * move.linear[1];
+      art_animation.z          = move.linear[1];
+      float show2          = render_value(art_animation);
 
-      animation.dist       = distance[x][y] * (2 + move.directional[2]) / 3;
-      animation.angle      = 5 * polar_theta[x][y] + 3 * move.noise_angle[2] + move.radial[4];
-      animation.offset_y   = 2 * move.linear[2];
-      animation.z          = move.linear[2];
-      float show3          = render_value(animation);
+      art_animation.dist       = distance[x][y] * (2 + move.directional[2]) / 3;
+      art_animation.angle      = 5 * polar_theta[x][y] + 3 * move.noise_angle[2] + move.radial[4];
+      art_animation.offset_y   = 2 * move.linear[2];
+      art_animation.z          = move.linear[2];
+      float show3          = render_value(art_animation);
 
-      animation.dist       = distance[x][y] * (2 + move.directional[3]) / 3;
-      animation.angle      = 4 * polar_theta[x][y] + 3 * move.noise_angle[3] + move.radial[4];
-      animation.offset_x   = 2 * move.linear[3];
-      animation.z          = move.linear[3];
-      float show4          = render_value(animation);
+      art_animation.dist       = distance[x][y] * (2 + move.directional[3]) / 3;
+      art_animation.angle      = 4 * polar_theta[x][y] + 3 * move.noise_angle[3] + move.radial[4];
+      art_animation.offset_x   = 2 * move.linear[3];
+      art_animation.z          = move.linear[3];
+      float show4          = render_value(art_animation);
       
       // colormapping
       pixel.red   = show1;
@@ -869,35 +869,35 @@ void Caleido2() {
   for (int x = 0; x < num_x; x++) {
     for (int y = 0; y < num_y; y++) {
   
-      // describe and render animation layers
-      animation.dist       = distance[x][y] * (2 + move.directional[0]) / 3;
-      animation.angle      = 2 * polar_theta[x][y] + 3 * move.noise_angle[0] + move.radial[4];
-      animation.scale_x    = 0.1;
-      animation.scale_y    = 0.1;
-      animation.scale_z    = 0.1;
-      animation.offset_y   = 2 * move.linear[0];
-      animation.offset_x   = 0;
-      animation.offset_z   = 0;
-      animation.z          = move.linear[0];
-      float show1          = render_value(animation);
+      // describe and render art_animation layers
+      art_animation.dist       = distance[x][y] * (2 + move.directional[0]) / 3;
+      art_animation.angle      = 2 * polar_theta[x][y] + 3 * move.noise_angle[0] + move.radial[4];
+      art_animation.scale_x    = 0.1;
+      art_animation.scale_y    = 0.1;
+      art_animation.scale_z    = 0.1;
+      art_animation.offset_y   = 2 * move.linear[0];
+      art_animation.offset_x   = 0;
+      art_animation.offset_z   = 0;
+      art_animation.z          = move.linear[0];
+      float show1          = render_value(art_animation);
 
-      animation.dist       = distance[x][y] * (2 + move.directional[1]) / 3;
-      animation.angle      = 2 * polar_theta[x][y] + 3 * move.noise_angle[1] + move.radial[4];
-      animation.offset_x   = 2 * move.linear[1];
-      animation.z          = move.linear[1];
-      float show2          = render_value(animation);
+      art_animation.dist       = distance[x][y] * (2 + move.directional[1]) / 3;
+      art_animation.angle      = 2 * polar_theta[x][y] + 3 * move.noise_angle[1] + move.radial[4];
+      art_animation.offset_x   = 2 * move.linear[1];
+      art_animation.z          = move.linear[1];
+      float show2          = render_value(art_animation);
 
-      animation.dist       = distance[x][y] * (2 + move.directional[2]) / 3;
-      animation.angle      = 2 * polar_theta[x][y] + 3 * move.noise_angle[2] + move.radial[4];
-      animation.offset_y   = 2 * move.linear[2];
-      animation.z          = move.linear[2];
-      float show3          = render_value(animation);
+      art_animation.dist       = distance[x][y] * (2 + move.directional[2]) / 3;
+      art_animation.angle      = 2 * polar_theta[x][y] + 3 * move.noise_angle[2] + move.radial[4];
+      art_animation.offset_y   = 2 * move.linear[2];
+      art_animation.z          = move.linear[2];
+      float show3          = render_value(art_animation);
 
-      animation.dist       = distance[x][y] * (2 + move.directional[3]) / 3;
-      animation.angle      = 2 * polar_theta[x][y] + 3 * move.noise_angle[3] + move.radial[4];
-      animation.offset_x   = 2 * move.linear[3];
-      animation.z          = move.linear[3];
-      float show4          = render_value(animation);
+      art_animation.dist       = distance[x][y] * (2 + move.directional[3]) / 3;
+      art_animation.angle      = 2 * polar_theta[x][y] + 3 * move.noise_angle[3] + move.radial[4];
+      art_animation.offset_x   = 2 * move.linear[3];
+      art_animation.z          = move.linear[3];
+      float show4          = render_value(art_animation);
       
       // colormapping
       pixel.red   = show1;
@@ -934,38 +934,38 @@ void Caleido3() {
   for (int x = 0; x < num_x; x++) {
     for (int y = 0; y < num_y; y++) {
   
-      // describe and render animation layers
-      animation.dist       = distance[x][y] * (2 + move.directional[0]) / 3;
-      animation.angle      = 2 * polar_theta[x][y] + 3 * move.noise_angle[0] + move.radial[4];
-      animation.scale_x    = 0.1;// + (move.directional[0] + 2)/100;
-      animation.scale_y    = 0.1;// + (move.directional[1] + 2)/100;
-      animation.scale_z    = 0.1;
-      animation.offset_y   = 2 * move.linear[0];
-      animation.offset_x   = 2 * move.linear[1];
-      animation.offset_z   = 0;
-      animation.z          = move.linear[0];
-      float show1          = render_value(animation);
+      // describe and render art_animation layers
+      art_animation.dist       = distance[x][y] * (2 + move.directional[0]) / 3;
+      art_animation.angle      = 2 * polar_theta[x][y] + 3 * move.noise_angle[0] + move.radial[4];
+      art_animation.scale_x    = 0.1;// + (move.directional[0] + 2)/100;
+      art_animation.scale_y    = 0.1;// + (move.directional[1] + 2)/100;
+      art_animation.scale_z    = 0.1;
+      art_animation.offset_y   = 2 * move.linear[0];
+      art_animation.offset_x   = 2 * move.linear[1];
+      art_animation.offset_z   = 0;
+      art_animation.z          = move.linear[0];
+      float show1          = render_value(art_animation);
 
-      animation.dist       = distance[x][y] * (2 + move.directional[1]) / 3;
-      animation.angle      = 2 * polar_theta[x][y] + 3 * move.noise_angle[1] + move.radial[4];
-      animation.offset_x   = 2 * move.linear[1];
-      animation.offset_y   = show1 / 20.0;
-      animation.z          = move.linear[1];
-      float show2          = render_value(animation);
+      art_animation.dist       = distance[x][y] * (2 + move.directional[1]) / 3;
+      art_animation.angle      = 2 * polar_theta[x][y] + 3 * move.noise_angle[1] + move.radial[4];
+      art_animation.offset_x   = 2 * move.linear[1];
+      art_animation.offset_y   = show1 / 20.0;
+      art_animation.z          = move.linear[1];
+      float show2          = render_value(art_animation);
 
-      animation.dist       = distance[x][y] * (2 + move.directional[2]) / 3;
-      animation.angle      = 2 * polar_theta[x][y] + 3 * move.noise_angle[2] + move.radial[4];
-      animation.offset_y   = 2 * move.linear[2];
-      animation.offset_x   = show2 / 20.0;
-      animation.z          = move.linear[2];
-      float show3          = render_value(animation);
+      art_animation.dist       = distance[x][y] * (2 + move.directional[2]) / 3;
+      art_animation.angle      = 2 * polar_theta[x][y] + 3 * move.noise_angle[2] + move.radial[4];
+      art_animation.offset_y   = 2 * move.linear[2];
+      art_animation.offset_x   = show2 / 20.0;
+      art_animation.z          = move.linear[2];
+      float show3          = render_value(art_animation);
 
-      animation.dist       = distance[x][y] * (2 + move.directional[3]) / 3;
-      animation.angle      = 2 * polar_theta[x][y] + 3 * move.noise_angle[3] + move.radial[4];
-      animation.offset_x   = 2 * move.linear[3];
-      animation.offset_y   = show3 / 20.0;
-      animation.z          = move.linear[3];
-      float show4          = render_value(animation);
+      art_animation.dist       = distance[x][y] * (2 + move.directional[3]) / 3;
+      art_animation.angle      = 2 * polar_theta[x][y] + 3 * move.noise_angle[3] + move.radial[4];
+      art_animation.offset_x   = 2 * move.linear[3];
+      art_animation.offset_y   = show3 / 20.0;
+      art_animation.z          = move.linear[3];
+      float show4          = render_value(art_animation);
       
       // colormapping
       float radius = radial_filter_radius;  // radial mask
@@ -1010,33 +1010,33 @@ void Lava1() {
   for (int x = 0; x < num_x; x++) {
     for (int y = 0; y < num_y; y++) {
   
-      // describe and render animation layers
-      animation.dist       = distance[x][y] * 0.8;
-      animation.angle      = polar_theta[x][y];
-      animation.scale_x    = 0.15;// + (move.directional[0] + 2)/100;
-      animation.scale_y    = 0.12;// + (move.directional[1] + 2)/100;
-      animation.scale_z    = 0.01;
-      animation.offset_y   = -move.linear[0];
-      animation.offset_x   = 0;
-      animation.offset_z   = 0;
-      animation.z          = 30;
-      float show1          = render_value(animation);
+      // describe and render art_animation layers
+      art_animation.dist       = distance[x][y] * 0.8;
+      art_animation.angle      = polar_theta[x][y];
+      art_animation.scale_x    = 0.15;// + (move.directional[0] + 2)/100;
+      art_animation.scale_y    = 0.12;// + (move.directional[1] + 2)/100;
+      art_animation.scale_z    = 0.01;
+      art_animation.offset_y   = -move.linear[0];
+      art_animation.offset_x   = 0;
+      art_animation.offset_z   = 0;
+      art_animation.z          = 30;
+      float show1          = render_value(art_animation);
 
-      animation.offset_y   = -move.linear[1];
-      animation.scale_x    = 0.15;// + (move.directional[0] + 2)/100;
-      animation.scale_y    = 0.12;// + (move.directional[1] + 2)/100;
-      animation.offset_x   = show1 / 100;
-      animation.offset_y   += show1/100;
+      art_animation.offset_y   = -move.linear[1];
+      art_animation.scale_x    = 0.15;// + (move.directional[0] + 2)/100;
+      art_animation.scale_y    = 0.12;// + (move.directional[1] + 2)/100;
+      art_animation.offset_x   = show1 / 100;
+      art_animation.offset_y   += show1/100;
      
-      float show2          = render_value(animation);
+      float show2          = render_value(art_animation);
 
-      animation.offset_y   = -move.linear[2];
-      animation.scale_x    = 0.15;// + (move.directional[0] + 2)/100;
-      animation.scale_y    = 0.12;// + (move.directional[1] + 2)/100;
-      animation.offset_x   = show2 / 100;
-      animation.offset_y   += show2/100;
+      art_animation.offset_y   = -move.linear[2];
+      art_animation.scale_x    = 0.15;// + (move.directional[0] + 2)/100;
+      art_animation.scale_y    = 0.12;// + (move.directional[1] + 2)/100;
+      art_animation.offset_x   = show2 / 100;
+      art_animation.offset_y   += show2/100;
      
-      float show3         = render_value(animation);
+      float show3         = render_value(art_animation);
 
       // colormapping
       float linear = (y)/(num_y-1.f);  // radial mask
@@ -1075,20 +1075,20 @@ void Scaledemo1() {
   for (int x = 0; x < num_x; x++) {
     for (int y = 0; y < num_y; y++) {
   
-      // describe and render animation layers
-      animation.dist       = 0.3*distance[x][y] * 0.8;
-      animation.angle      = 3*polar_theta[x][y] + move.radial[2];
-      animation.scale_x    = 0.1 + (move.noise_angle[0])/10;
-      animation.scale_y    = 0.1 + (move.noise_angle[1])/10;// + (move.directional[1] + 2)/100;
-      animation.scale_z    = 0.01;
-      animation.offset_y   = 0;
-      animation.offset_x   = 0;
-      animation.offset_z   = 100*move.linear[0];
-      animation.z          = 30;
-      float show1          = render_value(animation);
+      // describe and render art_animation layers
+      art_animation.dist       = 0.3*distance[x][y] * 0.8;
+      art_animation.angle      = 3*polar_theta[x][y] + move.radial[2];
+      art_animation.scale_x    = 0.1 + (move.noise_angle[0])/10;
+      art_animation.scale_y    = 0.1 + (move.noise_angle[1])/10;// + (move.directional[1] + 2)/100;
+      art_animation.scale_z    = 0.01;
+      art_animation.offset_y   = 0;
+      art_animation.offset_x   = 0;
+      art_animation.offset_z   = 100*move.linear[0];
+      art_animation.z          = 30;
+      float show1          = render_value(art_animation);
 
-      animation.angle      = 3;
-      float show2          = render_value(animation);
+      art_animation.angle      = 3;
+      float show2          = render_value(art_animation);
 
       float dist = 1;//(10-distance[x][y])/ 10;
       pixel.red = show1*dist;
@@ -1139,41 +1139,41 @@ void Yves() {
   for (int x = 0; x < num_x; x++) {
     for (int y = 0; y < num_y; y++) {
       
-      animation.dist       = distance[x][y] ;
-      animation.angle      = polar_theta[x][y] + 2*PI + move.noise_angle[5];
-      animation.scale_x    = 0.08;
-      animation.scale_y    = 0.08;
-      animation.scale_z    = 0.08;
-      animation.offset_y   = -move.linear[0];
-      animation.offset_x   = 0;
-      animation.offset_z   = 0;
-      animation.z          = 0;
-      float show1          = render_value(animation);
+      art_animation.dist       = distance[x][y] ;
+      art_animation.angle      = polar_theta[x][y] + 2*PI + move.noise_angle[5];
+      art_animation.scale_x    = 0.08;
+      art_animation.scale_y    = 0.08;
+      art_animation.scale_z    = 0.08;
+      art_animation.offset_y   = -move.linear[0];
+      art_animation.offset_x   = 0;
+      art_animation.offset_z   = 0;
+      art_animation.z          = 0;
+      float show1          = render_value(art_animation);
 
-      animation.dist       = distance[x][y];
-      animation.angle      = polar_theta[x][y] + 2*PI + move.noise_angle[6];;
-      animation.scale_x    = 0.08;
-      animation.scale_y    = 0.08;
-      animation.scale_z    = 0.08;
-      animation.offset_y   = -move.linear[1];
-      animation.offset_x   = 0;
-      animation.offset_z   = 0;
-      animation.z          = 0;
-      float show2          = render_value(animation);
+      art_animation.dist       = distance[x][y];
+      art_animation.angle      = polar_theta[x][y] + 2*PI + move.noise_angle[6];;
+      art_animation.scale_x    = 0.08;
+      art_animation.scale_y    = 0.08;
+      art_animation.scale_z    = 0.08;
+      art_animation.offset_y   = -move.linear[1];
+      art_animation.offset_x   = 0;
+      art_animation.offset_z   = 0;
+      art_animation.z          = 0;
+      float show2          = render_value(art_animation);
 
-      animation.angle      = polar_theta[x][y] + show1/100 + move.noise_angle[3] + move.noise_angle[4];
-      animation.dist       = distance[x][y] + show2/50;
-      animation.offset_y   = -move.linear[2];
+      art_animation.angle      = polar_theta[x][y] + show1/100 + move.noise_angle[3] + move.noise_angle[4];
+      art_animation.dist       = distance[x][y] + show2/50;
+      art_animation.offset_y   = -move.linear[2];
 
-      animation.offset_y   += show1/100;
-      animation.offset_x   += show2/100;
+      art_animation.offset_y   += show1/100;
+      art_animation.offset_x   += show2/100;
 
-      float show3          = render_value(animation);
+      float show3          = render_value(art_animation);
 
-      animation.offset_y   = 0;
-      animation.offset_x   = 0;
+      art_animation.offset_y   = 0;
+      art_animation.offset_x   = 0;
 
-      float show4          = render_value(animation);
+      float show4          = render_value(art_animation);
       
      
       pixel.red   = show3;
@@ -1215,27 +1215,27 @@ void Spiralus() {
   for (int x = 0; x < num_x; x++) {
     for (int y = 0; y < num_y; y++) {
       
-      animation.dist       = distance[x][y] ;
-      animation.angle      = 2*polar_theta[x][y] + move.noise_angle[5] + move.directional[3] * move.noise_angle[6]* animation.dist/10;
-      animation.scale_x    = 0.08;
-      animation.scale_y    = 0.08;
-      animation.scale_z    = 0.02;
-      animation.offset_y   = -move.linear[0];
-      animation.offset_x   = 0;
-      animation.offset_z   = 0;
-      animation.z          = move.linear[1];
-      float show1          = render_value(animation);
+      art_animation.dist       = distance[x][y] ;
+      art_animation.angle      = 2*polar_theta[x][y] + move.noise_angle[5] + move.directional[3] * move.noise_angle[6]* art_animation.dist/10;
+      art_animation.scale_x    = 0.08;
+      art_animation.scale_y    = 0.08;
+      art_animation.scale_z    = 0.02;
+      art_animation.offset_y   = -move.linear[0];
+      art_animation.offset_x   = 0;
+      art_animation.offset_z   = 0;
+      art_animation.z          = move.linear[1];
+      float show1          = render_value(art_animation);
 
-      animation.angle      = 2*polar_theta[x][y] + move.noise_angle[7] + move.directional[5] * move.noise_angle[8]* animation.dist/10;
-      animation.offset_y   = -move.linear[1];
-      animation.z          = move.linear[2];
+      art_animation.angle      = 2*polar_theta[x][y] + move.noise_angle[7] + move.directional[5] * move.noise_angle[8]* art_animation.dist/10;
+      art_animation.offset_y   = -move.linear[1];
+      art_animation.z          = move.linear[2];
             
-      float show2          = render_value(animation);
+      float show2          = render_value(art_animation);
 
-      animation.angle      = 2*polar_theta[x][y] + move.noise_angle[6] + move.directional[6] * move.noise_angle[7]* animation.dist/10;
-      animation.offset_y   = move.linear[2];
-      animation.z          = move.linear[0];
-      float show3          = render_value(animation);
+      art_animation.angle      = 2*polar_theta[x][y] + move.noise_angle[6] + move.directional[6] * move.noise_angle[7]* art_animation.dist/10;
+      art_animation.offset_y   = move.linear[2];
+      art_animation.z          = move.linear[0];
+      float show3          = render_value(art_animation);
       
       float f =  1;
      
@@ -1278,28 +1278,28 @@ void Spiralus2() {
   for (int x = 0; x < num_x; x++) {
     for (int y = 0; y < num_y; y++) {
       
-      animation.dist       = distance[x][y] ;
-      animation.angle      = 5*polar_theta[x][y] + move.noise_angle[5] + move.directional[3] * move.noise_angle[6]* animation.dist/10;
-      animation.scale_x    = 0.08;
-      animation.scale_y    = 0.08;
-      animation.scale_z    = 0.02;
-      animation.offset_y   = -move.linear[0];
-      animation.offset_x   = 0;
-      animation.offset_z   = 0;
-      animation.z          = move.linear[1];
-      float show1          = render_value(animation);
+      art_animation.dist       = distance[x][y] ;
+      art_animation.angle      = 5*polar_theta[x][y] + move.noise_angle[5] + move.directional[3] * move.noise_angle[6]* art_animation.dist/10;
+      art_animation.scale_x    = 0.08;
+      art_animation.scale_y    = 0.08;
+      art_animation.scale_z    = 0.02;
+      art_animation.offset_y   = -move.linear[0];
+      art_animation.offset_x   = 0;
+      art_animation.offset_z   = 0;
+      art_animation.z          = move.linear[1];
+      float show1          = render_value(art_animation);
 
-      animation.angle      = 6*polar_theta[x][y] + move.noise_angle[7] + move.directional[5] * move.noise_angle[8]* animation.dist/10;
-      animation.offset_y   = -move.linear[1];
-      animation.z          = move.linear[2];
+      art_animation.angle      = 6*polar_theta[x][y] + move.noise_angle[7] + move.directional[5] * move.noise_angle[8]* art_animation.dist/10;
+      art_animation.offset_y   = -move.linear[1];
+      art_animation.z          = move.linear[2];
             
-      float show2          = render_value(animation);
+      float show2          = render_value(art_animation);
 
-      animation.angle      = 6*polar_theta[x][y] + move.noise_angle[6] + move.directional[6] * move.noise_angle[7]* animation.dist/10;
-      animation.offset_y   = move.linear[2];
-      animation.z          = move.linear[0];
-      animation.dist       = distance[x][y] *0.8;
-      float show3          = render_value(animation);
+      art_animation.angle      = 6*polar_theta[x][y] + move.noise_angle[6] + move.directional[6] * move.noise_angle[7]* art_animation.dist/10;
+      art_animation.offset_y   = move.linear[2];
+      art_animation.z          = move.linear[0];
+      art_animation.dist       = distance[x][y] *0.8;
+      float show3          = render_value(art_animation);
       
       
       float f =  1;//(24-distance[x][y])/24;
@@ -1326,35 +1326,35 @@ void Hot_Blob() { // nice one
   for (int x = 0; x < num_x; x++) {
     for (int y = 0; y < num_y; y++) {
       
-      animation.dist       = distance[x][y] ;
-      animation.angle      = polar_theta[x][y];
+      art_animation.dist       = distance[x][y] ;
+      art_animation.angle      = polar_theta[x][y];
       
-      animation.scale_x    = 0.07 + move.directional[0]*0.002;
-      animation.scale_y    = 0.07;
+      art_animation.scale_x    = 0.07 + move.directional[0]*0.002;
+      art_animation.scale_y    = 0.07;
       
-      animation.offset_y   = -move.linear[0];
-      animation.offset_x   = 0;
-      animation.offset_z   = 0;
+      art_animation.offset_y   = -move.linear[0];
+      art_animation.offset_x   = 0;
+      art_animation.offset_z   = 0;
       
-      animation.z          = 0;
-      animation.low_limit  = -1;
-      float show1          = render_value(animation);
+      art_animation.z          = 0;
+      art_animation.low_limit  = -1;
+      float show1          = render_value(art_animation);
 
-      animation.offset_y   = -move.linear[1];
-      float show3          = render_value(animation);
+      art_animation.offset_y   = -move.linear[1];
+      float show3          = render_value(art_animation);
 
-      animation.offset_x   = show3/20;
-      animation.offset_y   = -move.linear[0]/2 + show1/70;
-      animation.low_limit  = 0;
-      float show2          = render_value(animation);
+      art_animation.offset_x   = show3/20;
+      art_animation.offset_y   = -move.linear[0]/2 + show1/70;
+      art_animation.low_limit  = 0;
+      float show2          = render_value(art_animation);
 
-      animation.offset_x   = show3/20;
-      animation.offset_y   = -move.linear[0]/2 + show1/70;
-      animation.z          = 100;
-      float show4          = render_value(animation);
+      art_animation.offset_x   = show3/20;
+      art_animation.offset_y   = -move.linear[0]/2 + show1/70;
+      art_animation.z          = 100;
+      float show4          = render_value(art_animation);
 
       float radius = radial_filter_radius;   // radius of a radial brightness filter
-      float radial = (radius-animation.dist)/animation.dist;
+      float radial = (radius-art_animation.dist)/art_animation.dist;
 
       float linear = (y+1)/(num_y-1.f);
       
@@ -1381,19 +1381,19 @@ void Zoom() { // nice one
   for (int x = 0; x < num_x; x++) {
     for (int y = 0; y < num_y; y++) {
       
-      animation.dist       = (distance[x][y] * distance[x][y])/2;
-      animation.angle      = polar_theta[x][y];
+      art_animation.dist       = (distance[x][y] * distance[x][y])/2;
+      art_animation.angle      = polar_theta[x][y];
       
-      animation.scale_x    = 0.005;
-      animation.scale_y    = 0.005;
+      art_animation.scale_x    = 0.005;
+      art_animation.scale_y    = 0.005;
       
-      animation.offset_y   = -10*move.linear[0];
-      animation.offset_x   = 0;
-      animation.offset_z   = 0;
+      art_animation.offset_y   = -10*move.linear[0];
+      art_animation.offset_x   = 0;
+      art_animation.offset_z   = 0;
       
-      animation.z          = 0;
-      animation.low_limit  = 0;
-      float show1          = render_value(animation);
+      art_animation.z          = 0;
+      art_animation.low_limit  = 0;
+      float show1          = render_value(art_animation);
 
   
       float linear = 1;//(y+1)/(num_y-1.f);
@@ -1425,29 +1425,29 @@ void Slow_Fade() { // nice one
   for (int x = 0; x < num_x; x++) {
     for (int y = 0; y < num_y; y++) {
       
-      animation.dist       = sqrtf(distance[x][y]) * 0.7 * (move.directional[0] + 1.5);
-      animation.angle      = polar_theta[x][y] - move.radial[0] + distance[x][y] / 5;
+      art_animation.dist       = sqrtf(distance[x][y]) * 0.7 * (move.directional[0] + 1.5);
+      art_animation.angle      = polar_theta[x][y] - move.radial[0] + distance[x][y] / 5;
       
-      animation.scale_x    = 0.11;
-      animation.scale_y    = 0.11;
+      art_animation.scale_x    = 0.11;
+      art_animation.scale_y    = 0.11;
       
-      animation.offset_y   = -50 * move.linear[0];
-      animation.offset_x   = 0;
-      animation.offset_z   = 0;
+      art_animation.offset_y   = -50 * move.linear[0];
+      art_animation.offset_x   = 0;
+      art_animation.offset_z   = 0;
       
-      animation.z          = move.linear[0];
-      animation.low_limit  = -0.1;
-      animation.high_limit = 1;
-      float show1          = render_value(animation);
+      art_animation.z          = move.linear[0];
+      art_animation.low_limit  = -0.1;
+      art_animation.high_limit = 1;
+      float show1          = render_value(art_animation);
 
-      animation.dist       = animation.dist  * 1.1;
-      animation.angle      += move.noise_angle[0] / 10;
-      float show2          = render_value(animation);
+      art_animation.dist       = art_animation.dist  * 1.1;
+      art_animation.angle      += move.noise_angle[0] / 10;
+      float show2          = render_value(art_animation);
 
-      animation.dist       = animation.dist  * 1.1;
-      animation.angle      += move.noise_angle[1] / 10;
+      art_animation.dist       = art_animation.dist  * 1.1;
+      art_animation.angle      += move.noise_angle[1] / 10;
       
-      float show3          = render_value(animation);
+      float show3          = render_value(art_animation);
 
       float radius = radial_filter_radius;   // radius of a radial brightness filter
       float radial = (radius-distance[x][y])/distance[x][y];
@@ -1487,24 +1487,24 @@ void Polar_Waves() { // nice one
   for (int x = 0; x < num_x; x++) {
     for (int y = 0; y < num_y; y++) {
       
-      animation.dist       = (distance[x][y]);
-      animation.angle      = polar_theta[x][y] - animation.dist * 0.1 + move.radial[0];
-      animation.z          = (animation.dist * 1.5)-10 * move.linear[0];
-      animation.scale_x    = 0.15;
-      animation.scale_y    = 0.15;
-      animation.offset_x   = move.linear[0];
+      art_animation.dist       = (distance[x][y]);
+      art_animation.angle      = polar_theta[x][y] - art_animation.dist * 0.1 + move.radial[0];
+      art_animation.z          = (art_animation.dist * 1.5)-10 * move.linear[0];
+      art_animation.scale_x    = 0.15;
+      art_animation.scale_y    = 0.15;
+      art_animation.offset_x   = move.linear[0];
       
-      float show1          = render_value(animation);
-      animation.angle      = polar_theta[x][y] - animation.dist * 0.1 + move.radial[1];
-      animation.z          = (animation.dist * 1.5)-10 * move.linear[1];
-      animation.offset_x   = move.linear[1];
+      float show1          = render_value(art_animation);
+      art_animation.angle      = polar_theta[x][y] - art_animation.dist * 0.1 + move.radial[1];
+      art_animation.z          = (art_animation.dist * 1.5)-10 * move.linear[1];
+      art_animation.offset_x   = move.linear[1];
 
-      float show2          = render_value(animation);
-      animation.angle      = polar_theta[x][y] - animation.dist * 0.1 + move.radial[2];
-      animation.z          = (animation.dist * 1.5)-10 * move.linear[2];
-      animation.offset_x   = move.linear[2];
+      float show2          = render_value(art_animation);
+      art_animation.angle      = polar_theta[x][y] - art_animation.dist * 0.1 + move.radial[2];
+      art_animation.z          = (art_animation.dist * 1.5)-10 * move.linear[2];
+      art_animation.offset_x   = move.linear[2];
 
-      float show3          = render_value(animation);
+      float show3          = render_value(art_animation);
 
       float radius = radial_filter_radius;   // radius of a radial brightness filter
       float radial = (radius-distance[x][y])/distance[x][y];
@@ -1541,24 +1541,24 @@ void RGB_Blobs() { // nice one
   for (int x = 0; x < num_x; x++) {
     for (int y = 0; y < num_y; y++) {
       
-      animation.dist       = distance[x][y];
-      animation.angle      = polar_theta[x][y] + move.radial[0] + move.noise_angle[0]+ move.noise_angle[3];
-      animation.z          = (sqrtf(animation.dist));// - 10 * move.linear[0];
-      animation.scale_x    = 0.1;
-      animation.scale_y    = 0.1;
-      animation.offset_z   = 10;
-      animation.offset_x   = 10*move.linear[0];
-      float show1          = render_value(animation);
+      art_animation.dist       = distance[x][y];
+      art_animation.angle      = polar_theta[x][y] + move.radial[0] + move.noise_angle[0]+ move.noise_angle[3];
+      art_animation.z          = (sqrtf(art_animation.dist));// - 10 * move.linear[0];
+      art_animation.scale_x    = 0.1;
+      art_animation.scale_y    = 0.1;
+      art_animation.offset_z   = 10;
+      art_animation.offset_x   = 10*move.linear[0];
+      float show1          = render_value(art_animation);
 
-      animation.angle      = polar_theta[x][y] + move.radial[1]+ move.noise_angle[1]+ move.noise_angle[4];
-      animation.offset_x   = 11*move.linear[1];
-      animation.offset_z   = 100;
-      float show2          = render_value(animation);
+      art_animation.angle      = polar_theta[x][y] + move.radial[1]+ move.noise_angle[1]+ move.noise_angle[4];
+      art_animation.offset_x   = 11*move.linear[1];
+      art_animation.offset_z   = 100;
+      float show2          = render_value(art_animation);
 
-      animation.angle      = polar_theta[x][y] + move.radial[2]+ move.noise_angle[2]+ move.noise_angle[5];
-      animation.offset_x   = 12*move.linear[2];
-      animation.offset_z   = 300;
-      float show3          = render_value(animation);
+      art_animation.angle      = polar_theta[x][y] + move.radial[2]+ move.noise_angle[2]+ move.noise_angle[5];
+      art_animation.offset_x   = 12*move.linear[2];
+      art_animation.offset_z   = 300;
+      float show3          = render_value(art_animation);
       
 
       float radius = radial_filter_radius;   // radius of a radial brightness filter
@@ -1597,24 +1597,24 @@ void RGB_Blobs2() { // nice one
   for (int x = 0; x < num_x; x++) {
     for (int y = 0; y < num_y; y++) {
       
-      animation.dist       = distance[x][y];
-      animation.angle      = polar_theta[x][y] + move.radial[0] + move.noise_angle[0]+ move.noise_angle[3] + move.noise_angle[1];
-      animation.z          = (sqrtf(animation.dist));// - 10 * move.linear[0];
-      animation.scale_x    = 0.1;
-      animation.scale_y    = 0.1;
-      animation.offset_z   = 10;
-      animation.offset_x   = 10*move.linear[0];
-      float show1          = render_value(animation);
+      art_animation.dist       = distance[x][y];
+      art_animation.angle      = polar_theta[x][y] + move.radial[0] + move.noise_angle[0]+ move.noise_angle[3] + move.noise_angle[1];
+      art_animation.z          = (sqrtf(art_animation.dist));// - 10 * move.linear[0];
+      art_animation.scale_x    = 0.1;
+      art_animation.scale_y    = 0.1;
+      art_animation.offset_z   = 10;
+      art_animation.offset_x   = 10*move.linear[0];
+      float show1          = render_value(art_animation);
 
-      animation.angle      = polar_theta[x][y] + move.radial[1]+ move.noise_angle[1]+ move.noise_angle[4] + move.noise_angle[2];
-      animation.offset_x   = 11*move.linear[1];
-      animation.offset_z   = 100;
-      float show2          = render_value(animation);
+      art_animation.angle      = polar_theta[x][y] + move.radial[1]+ move.noise_angle[1]+ move.noise_angle[4] + move.noise_angle[2];
+      art_animation.offset_x   = 11*move.linear[1];
+      art_animation.offset_z   = 100;
+      float show2          = render_value(art_animation);
 
-      animation.angle      = polar_theta[x][y] + move.radial[2]+ move.noise_angle[2]+ move.noise_angle[5]+ move.noise_angle[3];
-      animation.offset_x   = 12*move.linear[2];
-      animation.offset_z   = 300;
-      float show3          = render_value(animation);
+      art_animation.angle      = polar_theta[x][y] + move.radial[2]+ move.noise_angle[2]+ move.noise_angle[5]+ move.noise_angle[3];
+      art_animation.offset_x   = 12*move.linear[2];
+      art_animation.offset_z   = 300;
+      float show3          = render_value(art_animation);
       
       float radius = radial_filter_radius;   // radius of a radial brightness filter
       float radial = (radius-distance[x][y])/distance[x][y];
@@ -1650,29 +1650,29 @@ void RGB_Blobs3() { // nice one
   for (int x = 0; x < num_x; x++) {
     for (int y = 0; y < num_y; y++) {
       
-      animation.dist       = distance[x][y] + move.noise_angle[4];
-      animation.angle      = polar_theta[x][y] + move.radial[0] + move.noise_angle[0]+ move.noise_angle[3] + move.noise_angle[1];
-      animation.z          = (sqrtf(animation.dist));// - 10 * move.linear[0];
-      animation.scale_x    = 0.1 ;
-      animation.scale_y    = 0.1 ;
-      animation.offset_z   = 10;
-      animation.offset_x   = 10*move.linear[0];
-      float show1          = render_value(animation);
+      art_animation.dist       = distance[x][y] + move.noise_angle[4];
+      art_animation.angle      = polar_theta[x][y] + move.radial[0] + move.noise_angle[0]+ move.noise_angle[3] + move.noise_angle[1];
+      art_animation.z          = (sqrtf(art_animation.dist));// - 10 * move.linear[0];
+      art_animation.scale_x    = 0.1 ;
+      art_animation.scale_y    = 0.1 ;
+      art_animation.offset_z   = 10;
+      art_animation.offset_x   = 10*move.linear[0];
+      float show1          = render_value(art_animation);
 
-      animation.angle      = polar_theta[x][y] + move.radial[1]+ move.noise_angle[1]+ move.noise_angle[4] + move.noise_angle[2];
-      animation.offset_x   = 11*move.linear[1];
-      animation.offset_z   = 100;
-      float show2          = render_value(animation);
+      art_animation.angle      = polar_theta[x][y] + move.radial[1]+ move.noise_angle[1]+ move.noise_angle[4] + move.noise_angle[2];
+      art_animation.offset_x   = 11*move.linear[1];
+      art_animation.offset_z   = 100;
+      float show2          = render_value(art_animation);
 
-      animation.angle      = polar_theta[x][y] + move.radial[2]+ move.noise_angle[2]+ move.noise_angle[5]+ move.noise_angle[3];
-      animation.offset_x   = 12*move.linear[2];
-      animation.offset_z   = 300;
-      float show3          = render_value(animation);
+      art_animation.angle      = polar_theta[x][y] + move.radial[2]+ move.noise_angle[2]+ move.noise_angle[5]+ move.noise_angle[3];
+      art_animation.offset_x   = 12*move.linear[2];
+      art_animation.offset_z   = 300;
+      float show3          = render_value(art_animation);
       
       float radius = radial_filter_radius;   // radius of a radial brightness filter
       float radial = (radius-distance[x][y])/distance[x][y];
 
-      pixel.red    = radial * (show1+show3)*0.5 * animation.dist/5;
+      pixel.red    = radial * (show1+show3)*0.5 * art_animation.dist/5;
       pixel.green  = radial * (show2+show1)*0.5 * y/15;
       pixel.blue   = radial * (show3+show2)*0.5 * x/15;
      
@@ -1705,29 +1705,29 @@ void RGB_Blobs4() { // nice one
   for (int x = 0; x < num_x; x++) {
     for (int y = 0; y < num_y; y++) {
       
-      animation.dist       = distance[x][y] + move.noise_angle[4];
-      animation.angle      = polar_theta[x][y] + move.radial[0] + move.noise_angle[0]+ move.noise_angle[3] + move.noise_angle[1];
-      animation.z          = 3+sqrtf(animation.dist);
-      animation.scale_x    = 0.1;
-      animation.scale_y    = 0.1;
-      animation.offset_z   = 10;
-      animation.offset_x   = 50 * move.linear[0];
-      float show1          = render_value(animation);
+      art_animation.dist       = distance[x][y] + move.noise_angle[4];
+      art_animation.angle      = polar_theta[x][y] + move.radial[0] + move.noise_angle[0]+ move.noise_angle[3] + move.noise_angle[1];
+      art_animation.z          = 3+sqrtf(art_animation.dist);
+      art_animation.scale_x    = 0.1;
+      art_animation.scale_y    = 0.1;
+      art_animation.offset_z   = 10;
+      art_animation.offset_x   = 50 * move.linear[0];
+      float show1          = render_value(art_animation);
 
-      animation.angle      = polar_theta[x][y] + move.radial[1]+ move.noise_angle[1]+ move.noise_angle[4] + move.noise_angle[2];
-      animation.offset_x   = 50 * move.linear[1];
-      animation.offset_z   = 100;
-      float show2          = render_value(animation);
+      art_animation.angle      = polar_theta[x][y] + move.radial[1]+ move.noise_angle[1]+ move.noise_angle[4] + move.noise_angle[2];
+      art_animation.offset_x   = 50 * move.linear[1];
+      art_animation.offset_z   = 100;
+      float show2          = render_value(art_animation);
 
-      animation.angle      = polar_theta[x][y] + move.radial[2]+ move.noise_angle[2]+ move.noise_angle[5]+ move.noise_angle[3];
-      animation.offset_x   = 50 * move.linear[2];
-      animation.offset_z   = 300;
-      float show3          = render_value(animation);
+      art_animation.angle      = polar_theta[x][y] + move.radial[2]+ move.noise_angle[2]+ move.noise_angle[5]+ move.noise_angle[3];
+      art_animation.offset_x   = 50 * move.linear[2];
+      art_animation.offset_z   = 300;
+      float show3          = render_value(art_animation);
       
       float radius = 23;   // radius of a radial brightness filter
       float radial = (radius-distance[x][y])/distance[x][y];
 
-      pixel.red    = radial * (show1+show3)*0.5 * animation.dist/5;
+      pixel.red    = radial * (show1+show3)*0.5 * art_animation.dist/5;
       pixel.green  = radial * (show2+show1)*0.5 * y/15;
       pixel.blue   = radial * (show3+show2)*0.5 * x/15;
      
@@ -1760,29 +1760,29 @@ void RGB_Blobs5() { // nice one
   for (int x = 0; x < num_x; x++) {
     for (int y = 0; y < num_y; y++) {
       
-      animation.dist       = distance[x][y] + move.noise_angle[4];
-      animation.angle      = polar_theta[x][y] + move.radial[0] + move.noise_angle[0]+ move.noise_angle[3] + move.noise_angle[1];
-      animation.z          = 3+sqrtf(animation.dist);
-      animation.scale_x    = 0.05;
-      animation.scale_y    = 0.05;
-      animation.offset_z   = 10;
-      animation.offset_x   = 50 * move.linear[0];
-      float show1          = render_value(animation);
+      art_animation.dist       = distance[x][y] + move.noise_angle[4];
+      art_animation.angle      = polar_theta[x][y] + move.radial[0] + move.noise_angle[0]+ move.noise_angle[3] + move.noise_angle[1];
+      art_animation.z          = 3+sqrtf(art_animation.dist);
+      art_animation.scale_x    = 0.05;
+      art_animation.scale_y    = 0.05;
+      art_animation.offset_z   = 10;
+      art_animation.offset_x   = 50 * move.linear[0];
+      float show1          = render_value(art_animation);
 
-      animation.angle      = polar_theta[x][y] + move.radial[1]+ move.noise_angle[1]+ move.noise_angle[4] + move.noise_angle[2];
-      animation.offset_x   = 50 * move.linear[1];
-      animation.offset_z   = 100;
-      float show2          = render_value(animation);
+      art_animation.angle      = polar_theta[x][y] + move.radial[1]+ move.noise_angle[1]+ move.noise_angle[4] + move.noise_angle[2];
+      art_animation.offset_x   = 50 * move.linear[1];
+      art_animation.offset_z   = 100;
+      float show2          = render_value(art_animation);
 
-      animation.angle      = polar_theta[x][y] + move.radial[2]+ move.noise_angle[2]+ move.noise_angle[5]+ move.noise_angle[3];
-      animation.offset_x   = 50 * move.linear[2];
-      animation.offset_z   = 300;
-      float show3          = render_value(animation);
+      art_animation.angle      = polar_theta[x][y] + move.radial[2]+ move.noise_angle[2]+ move.noise_angle[5]+ move.noise_angle[3];
+      art_animation.offset_x   = 50 * move.linear[2];
+      art_animation.offset_z   = 300;
+      float show3          = render_value(art_animation);
       
       float radius = 23;   // radius of a radial brightness filter
       float radial = (radius-distance[x][y])/distance[x][y];
 
-      pixel.red    = radial * (show1+show3)*0.5 * animation.dist/5;
+      pixel.red    = radial * (show1+show3)*0.5 * art_animation.dist/5;
       pixel.green  = radial * (show2+show1)*0.5 * y/15;
       pixel.blue   = radial * (show3+show2)*0.5 * x/15;
      
@@ -1814,51 +1814,51 @@ void Big_Caleido() { // nice one
   for (int x = 0; x < num_x; x++) {
     for (int y = 0; y < num_y; y++) {
       
-      animation.dist       = distance[x][y];
-      animation.angle      = 5 * polar_theta[x][y] + 5*move.noise_angle[0] + animation.dist * 0.1;
-      animation.z          = 5;
-      animation.scale_x    = 0.05;
-      animation.scale_y    = 0.05;
-      animation.offset_z   = 50 * move.linear[0];
-      animation.offset_x   = 50 * move.noise_angle[0];
-      animation.offset_y   = 50 * move.noise_angle[1];
-      float show1          = render_value(animation);
+      art_animation.dist       = distance[x][y];
+      art_animation.angle      = 5 * polar_theta[x][y] + 5*move.noise_angle[0] + art_animation.dist * 0.1;
+      art_animation.z          = 5;
+      art_animation.scale_x    = 0.05;
+      art_animation.scale_y    = 0.05;
+      art_animation.offset_z   = 50 * move.linear[0];
+      art_animation.offset_x   = 50 * move.noise_angle[0];
+      art_animation.offset_y   = 50 * move.noise_angle[1];
+      float show1          = render_value(art_animation);
 
-      animation.angle      =6 * polar_theta[x][y] + 5*move.noise_angle[1] + animation.dist * 0.15;
-      animation.z          = 5;
-      animation.scale_x    = 0.05;
-      animation.scale_y    = 0.05;
-      animation.offset_z   = 50 * move.linear[1];
-      animation.offset_x   = 50 * move.noise_angle[1];
-      animation.offset_y   = 50 * move.noise_angle[2];
-      float show2          = render_value(animation);
+      art_animation.angle      =6 * polar_theta[x][y] + 5*move.noise_angle[1] + art_animation.dist * 0.15;
+      art_animation.z          = 5;
+      art_animation.scale_x    = 0.05;
+      art_animation.scale_y    = 0.05;
+      art_animation.offset_z   = 50 * move.linear[1];
+      art_animation.offset_x   = 50 * move.noise_angle[1];
+      art_animation.offset_y   = 50 * move.noise_angle[2];
+      float show2          = render_value(art_animation);
 
-      animation.angle      = 5;
-      animation.z          = 5;
-      animation.scale_x    = 0.10;
-      animation.scale_y    = 0.10;
-      animation.offset_z   = 10 * move.linear[2];
-      animation.offset_x   = 10 * move.noise_angle[2];
-      animation.offset_y   = 10 * move.noise_angle[3];
-      float show3          = render_value(animation);
+      art_animation.angle      = 5;
+      art_animation.z          = 5;
+      art_animation.scale_x    = 0.10;
+      art_animation.scale_y    = 0.10;
+      art_animation.offset_z   = 10 * move.linear[2];
+      art_animation.offset_x   = 10 * move.noise_angle[2];
+      art_animation.offset_y   = 10 * move.noise_angle[3];
+      float show3          = render_value(art_animation);
 
-      animation.angle      = 15;
-      animation.z          = 15;
-      animation.scale_x    = 0.10;
-      animation.scale_y    = 0.10;
-      animation.offset_z   = 10 * move.linear[3];
-      animation.offset_x   = 10 * move.noise_angle[3];
-      animation.offset_y   = 10 * move.noise_angle[4];
-      float show4          = render_value(animation);
+      art_animation.angle      = 15;
+      art_animation.z          = 15;
+      art_animation.scale_x    = 0.10;
+      art_animation.scale_y    = 0.10;
+      art_animation.offset_z   = 10 * move.linear[3];
+      art_animation.offset_x   = 10 * move.noise_angle[3];
+      art_animation.offset_y   = 10 * move.noise_angle[4];
+      float show4          = render_value(art_animation);
 
-      animation.angle      = 2;
-      animation.z          = 15;
-      animation.scale_x    = 0.15;
-      animation.scale_y    = 0.15;
-      animation.offset_z   = 10 * move.linear[4];
-      animation.offset_x   = 10 * move.noise_angle[4];
-      animation.offset_y   = 10 * move.noise_angle[5];
-      float show5          = render_value(animation);
+      art_animation.angle      = 2;
+      art_animation.z          = 15;
+      art_animation.scale_x    = 0.15;
+      art_animation.scale_y    = 0.15;
+      art_animation.offset_z   = 10 * move.linear[4];
+      art_animation.offset_x   = 10 * move.noise_angle[4];
+      art_animation.offset_y   = 10 * move.noise_angle[5];
+      float show5          = render_value(art_animation);
 
       
       pixel.red    = show1-show4;
@@ -1893,55 +1893,55 @@ void SM1() { // nice one
   for (int x = 0; x < num_x/2; x++) {
     for (int y = 0; y < num_y/2; y++) {
       
-      animation.dist       = distance[x][y];
-      animation.angle      = polar_theta[x][y] + 5*move.noise_angle[0];
-      animation.z          = 5;
-      animation.scale_x    = 0.1;
-      animation.scale_y    = 0.1;
-      animation.offset_z   = 50 * move.linear[0];
-      animation.offset_x   = 150 * move.directional[0];
-      animation.offset_y   = 150 * move.directional[1];
-      float show1          = render_value(animation);
+      art_animation.dist       = distance[x][y];
+      art_animation.angle      = polar_theta[x][y] + 5*move.noise_angle[0];
+      art_animation.z          = 5;
+      art_animation.scale_x    = 0.1;
+      art_animation.scale_y    = 0.1;
+      art_animation.offset_z   = 50 * move.linear[0];
+      art_animation.offset_x   = 150 * move.directional[0];
+      art_animation.offset_y   = 150 * move.directional[1];
+      float show1          = render_value(art_animation);
 
-      animation.dist       = distance[x][y];
-      animation.angle      = polar_theta[x][y] + 4*move.noise_angle[1];
-      animation.z          = 15;
-      animation.scale_x    = 0.15;
-      animation.scale_y    = 0.15;
-      animation.offset_z   = 50 * move.linear[1];
-      animation.offset_x   = 150 * move.directional[1];
-      animation.offset_y   = 150 * move.directional[2];
-      float show2          = render_value(animation);
+      art_animation.dist       = distance[x][y];
+      art_animation.angle      = polar_theta[x][y] + 4*move.noise_angle[1];
+      art_animation.z          = 15;
+      art_animation.scale_x    = 0.15;
+      art_animation.scale_y    = 0.15;
+      art_animation.offset_z   = 50 * move.linear[1];
+      art_animation.offset_x   = 150 * move.directional[1];
+      art_animation.offset_y   = 150 * move.directional[2];
+      float show2          = render_value(art_animation);
 
-      animation.dist       = distance[x][y];
-      animation.angle      = polar_theta[x][y] + 5*move.noise_angle[2];
-      animation.z          = 25;
-      animation.scale_x    = 0.1;
-      animation.scale_y    = 0.1;
-      animation.offset_z   = 50 * move.linear[2];
-      animation.offset_x   = 150 * move.directional[2];
-      animation.offset_y   = 150 * move.directional[3];
-      float show3          = render_value(animation);
+      art_animation.dist       = distance[x][y];
+      art_animation.angle      = polar_theta[x][y] + 5*move.noise_angle[2];
+      art_animation.z          = 25;
+      art_animation.scale_x    = 0.1;
+      art_animation.scale_y    = 0.1;
+      art_animation.offset_z   = 50 * move.linear[2];
+      art_animation.offset_x   = 150 * move.directional[2];
+      art_animation.offset_y   = 150 * move.directional[3];
+      float show3          = render_value(art_animation);
 
-      animation.dist       = distance[x][y];
-      animation.angle      = polar_theta[x][y] + 5*move.noise_angle[3];
-      animation.z          = 35;
-      animation.scale_x    = 0.15;
-      animation.scale_y    = 0.15;
-      animation.offset_z   = 50 * move.linear[3];
-      animation.offset_x   = 150 * move.directional[3];
-      animation.offset_y   = 150 * move.directional[4];
-      float show4          = render_value(animation);
+      art_animation.dist       = distance[x][y];
+      art_animation.angle      = polar_theta[x][y] + 5*move.noise_angle[3];
+      art_animation.z          = 35;
+      art_animation.scale_x    = 0.15;
+      art_animation.scale_y    = 0.15;
+      art_animation.offset_z   = 50 * move.linear[3];
+      art_animation.offset_x   = 150 * move.directional[3];
+      art_animation.offset_y   = 150 * move.directional[4];
+      float show4          = render_value(art_animation);
 
-      animation.dist       = distance[x][y];
-      animation.angle      = polar_theta[x][y] + 5*move.noise_angle[4];
-      animation.z          = 45;
-      animation.scale_x    = 0.2;
-      animation.scale_y    = 0.2;
-      animation.offset_z   = 50 * move.linear[4];
-      animation.offset_x   = 150 * move.directional[4];
-      animation.offset_y   = 150 * move.directional[5];
-      float show5          = render_value(animation);
+      art_animation.dist       = distance[x][y];
+      art_animation.angle      = polar_theta[x][y] + 5*move.noise_angle[4];
+      art_animation.z          = 45;
+      art_animation.scale_x    = 0.2;
+      art_animation.scale_y    = 0.2;
+      art_animation.offset_z   = 50 * move.linear[4];
+      art_animation.offset_x   = 150 * move.directional[4];
+      art_animation.offset_y   = 150 * move.directional[5];
+      float show5          = render_value(art_animation);
 
      
 
@@ -1981,35 +1981,35 @@ void SM2() {
   for (int x = 0; x < num_x; x++) {
     for (int y = 0; y < num_y; y++) {
       
-      animation.dist       = distance[x][y] * (move.directional[0]);
-      animation.angle      = polar_theta[x][y] + move.radial[0];
-      animation.z          = 5;
-      animation.scale_x    = 0.09;
-      animation.scale_y    = 0.09;
-      animation.offset_z   = 5 * move.linear[0];
-      animation.offset_x   = 0;
-      animation.offset_y   = 0;
-      float show1          = render_value(animation);
+      art_animation.dist       = distance[x][y] * (move.directional[0]);
+      art_animation.angle      = polar_theta[x][y] + move.radial[0];
+      art_animation.z          = 5;
+      art_animation.scale_x    = 0.09;
+      art_animation.scale_y    = 0.09;
+      art_animation.offset_z   = 5 * move.linear[0];
+      art_animation.offset_x   = 0;
+      art_animation.offset_y   = 0;
+      float show1          = render_value(art_animation);
 
-      animation.dist       = distance[x][y]* move.directional[1];
-      animation.angle      = polar_theta[x][y] + move.radial[1];
-      animation.z          = 50;
-      animation.scale_x    = 0.07;
-      animation.scale_y    = 0.07;
-      animation.offset_z   = 5 * move.linear[1];
-      animation.offset_x   = 0;
-      animation.offset_y   = 0;
-      float show2          = render_value(animation);
+      art_animation.dist       = distance[x][y]* move.directional[1];
+      art_animation.angle      = polar_theta[x][y] + move.radial[1];
+      art_animation.z          = 50;
+      art_animation.scale_x    = 0.07;
+      art_animation.scale_y    = 0.07;
+      art_animation.offset_z   = 5 * move.linear[1];
+      art_animation.offset_x   = 0;
+      art_animation.offset_y   = 0;
+      float show2          = render_value(art_animation);
       
-      animation.dist       = distance[x][y]* move.directional[2];
-      animation.angle      = polar_theta[x][y] + move.radial[2];
-      animation.z          = 500;
-      animation.scale_x    = 0.05;
-      animation.scale_y    = 0.05;
-      animation.offset_z   = 5 * move.linear[2];
-      animation.offset_x   = 0;
-      animation.offset_y   = 0;
-      float show3          = render_value(animation);
+      art_animation.dist       = distance[x][y]* move.directional[2];
+      art_animation.angle      = polar_theta[x][y] + move.radial[2];
+      art_animation.z          = 500;
+      art_animation.scale_x    = 0.05;
+      art_animation.scale_y    = 0.05;
+      art_animation.offset_z   = 5 * move.linear[2];
+      art_animation.offset_x   = 0;
+      art_animation.offset_y   = 0;
+      float show3          = render_value(art_animation);
      
      
 
@@ -2047,65 +2047,65 @@ void SM3() {
   for (int x = 0; x < num_x; x++) {
     for (int y = 0; y < num_y; y++) {
       
-      animation.dist       = distance[x][y];
-      animation.angle      = polar_theta[x][y];
-      animation.z          = 5;
-      animation.scale_x    = 0.09;
-      animation.scale_y    = 0.09;
-      animation.offset_z   = 0;
-      animation.offset_x   = 0;
-      animation.offset_y   = -20 * move.linear[0];;
-      animation.low_limit  = -1;
-      animation.high_limit = 1;
-      show1          = render_value(animation);
+      art_animation.dist       = distance[x][y];
+      art_animation.angle      = polar_theta[x][y];
+      art_animation.z          = 5;
+      art_animation.scale_x    = 0.09;
+      art_animation.scale_y    = 0.09;
+      art_animation.offset_z   = 0;
+      art_animation.offset_x   = 0;
+      art_animation.offset_y   = -20 * move.linear[0];;
+      art_animation.low_limit  = -1;
+      art_animation.high_limit = 1;
+      show1          = render_value(art_animation);
 
-      animation.dist       = distance[x][y];
-      animation.angle      = polar_theta[x][y];
-      animation.z          = 500;
-      animation.scale_x    = 0.09;
-      animation.scale_y    = 0.09;
-      animation.offset_z   = 0;
-      animation.offset_x   = 0;
-      animation.offset_y   = -20 * move.linear[0];;
-      animation.low_limit  = -1;
-      animation.high_limit = 1;
-      show2          = render_value(animation);
+      art_animation.dist       = distance[x][y];
+      art_animation.angle      = polar_theta[x][y];
+      art_animation.z          = 500;
+      art_animation.scale_x    = 0.09;
+      art_animation.scale_y    = 0.09;
+      art_animation.offset_z   = 0;
+      art_animation.offset_x   = 0;
+      art_animation.offset_y   = -20 * move.linear[0];;
+      art_animation.low_limit  = -1;
+      art_animation.high_limit = 1;
+      show2          = render_value(art_animation);
 
-      animation.dist       = distance[x][y];
-      animation.angle      = polar_theta[x][y];
-      animation.z          = 50;
-      animation.scale_x    = 0.09;
-      animation.scale_y    = 0.09;
-      animation.offset_z   = 0;
-      animation.offset_x   = 500+show1/20;
-      animation.offset_y   = -4 * move.linear[0] + show2/20;
-      animation.low_limit  = 0;
-      animation.high_limit = 1;
-      show3          = render_value(animation);
+      art_animation.dist       = distance[x][y];
+      art_animation.angle      = polar_theta[x][y];
+      art_animation.z          = 50;
+      art_animation.scale_x    = 0.09;
+      art_animation.scale_y    = 0.09;
+      art_animation.offset_z   = 0;
+      art_animation.offset_x   = 500+show1/20;
+      art_animation.offset_y   = -4 * move.linear[0] + show2/20;
+      art_animation.low_limit  = 0;
+      art_animation.high_limit = 1;
+      show3          = render_value(art_animation);
 
-      animation.dist       = distance[x][y];
-      animation.angle      = polar_theta[x][y];
-      animation.z          = 50;
-      animation.scale_x    = 0.09;
-      animation.scale_y    = 0.09;
-      animation.offset_z   = 0;
-      animation.offset_x   = 500+show1/18;
-      animation.offset_y   = -4 * move.linear[0] + show2/18;
-      animation.low_limit  = 0;
-      animation.high_limit = 1;
-      show4          = render_value(animation);
+      art_animation.dist       = distance[x][y];
+      art_animation.angle      = polar_theta[x][y];
+      art_animation.z          = 50;
+      art_animation.scale_x    = 0.09;
+      art_animation.scale_y    = 0.09;
+      art_animation.offset_z   = 0;
+      art_animation.offset_x   = 500+show1/18;
+      art_animation.offset_y   = -4 * move.linear[0] + show2/18;
+      art_animation.low_limit  = 0;
+      art_animation.high_limit = 1;
+      show4          = render_value(art_animation);
 
-      animation.dist       = distance[x][y];
-      animation.angle      = polar_theta[x][y];
-      animation.z          = 50;
-      animation.scale_x    = 0.09;
-      animation.scale_y    = 0.09;
-      animation.offset_z   = 0;
-      animation.offset_x   = 500+show1/19;
-      animation.offset_y   = -4 * move.linear[0] + show2/19;
-      animation.low_limit  = 0.3;
-      animation.high_limit = 1;
-      show5          = render_value(animation);
+      art_animation.dist       = distance[x][y];
+      art_animation.angle      = polar_theta[x][y];
+      art_animation.z          = 50;
+      art_animation.scale_x    = 0.09;
+      art_animation.scale_y    = 0.09;
+      art_animation.offset_z   = 0;
+      art_animation.offset_x   = 500+show1/19;
+      art_animation.offset_y   = -4 * move.linear[0] + show2/19;
+      art_animation.low_limit  = 0.3;
+      art_animation.high_limit = 1;
+      show5          = render_value(art_animation);
 
       pixel.red    = show4;
       pixel.green  = show3;
@@ -2140,29 +2140,29 @@ void SM4() {
   for (int x = 0; x < num_x; x++) {
     for (int y = 0; y < num_y; y++) {
       
-      animation.dist       = distance[x][y];
-      animation.angle      = polar_theta[x][y];
-      animation.z          = 5;
-      animation.scale_x    = 0.09;
-      animation.scale_y    = 0.09;
-      animation.offset_z   = 0;
-      animation.offset_x   = 0;
-      animation.offset_y   = -20 * move.linear[0];;
-      animation.low_limit  = 0;
-      animation.high_limit = 1;
-      show1          = render_value(animation);
+      art_animation.dist       = distance[x][y];
+      art_animation.angle      = polar_theta[x][y];
+      art_animation.z          = 5;
+      art_animation.scale_x    = 0.09;
+      art_animation.scale_y    = 0.09;
+      art_animation.offset_z   = 0;
+      art_animation.offset_x   = 0;
+      art_animation.offset_y   = -20 * move.linear[0];;
+      art_animation.low_limit  = 0;
+      art_animation.high_limit = 1;
+      show1          = render_value(art_animation);
 
-      animation.dist       = distance[x][y];
-      animation.angle      = polar_theta[x][y];
-      animation.z          = 500;
-      animation.scale_x    = 0.09;
-      animation.scale_y    = 0.09;
-      animation.offset_z   = 0;
-      animation.offset_x   = 0;
-      animation.offset_y   = -40 * move.linear[0];;
-      animation.low_limit  = 0;
-      animation.high_limit = 1;
-      show2          = render_value(animation);
+      art_animation.dist       = distance[x][y];
+      art_animation.angle      = polar_theta[x][y];
+      art_animation.z          = 500;
+      art_animation.scale_x    = 0.09;
+      art_animation.scale_y    = 0.09;
+      art_animation.offset_z   = 0;
+      art_animation.offset_x   = 0;
+      art_animation.offset_y   = -40 * move.linear[0];;
+      art_animation.low_limit  = 0;
+      art_animation.high_limit = 1;
+      show2          = render_value(art_animation);
 
       pixel.red    = add(show2, show1);
       pixel.green  = 0;
@@ -2197,65 +2197,65 @@ void SM5() {
   for (int x = 0; x < num_x; x++) {
     for (int y = 0; y < num_y; y++) {
       
-      animation.dist       = distance[x][y] * (move.directional[0]);
-      animation.angle      = polar_theta[x][y] + move.radial[0];
-      animation.z          = 5;
-      animation.scale_x    = 0.09;
-      animation.scale_y    = 0.09;
-      animation.offset_z   = 5 * move.linear[0];
-      animation.offset_x   = 0;
-      animation.offset_y   = 0;
-      float show1          = render_value(animation);
+      art_animation.dist       = distance[x][y] * (move.directional[0]);
+      art_animation.angle      = polar_theta[x][y] + move.radial[0];
+      art_animation.z          = 5;
+      art_animation.scale_x    = 0.09;
+      art_animation.scale_y    = 0.09;
+      art_animation.offset_z   = 5 * move.linear[0];
+      art_animation.offset_x   = 0;
+      art_animation.offset_y   = 0;
+      float show1          = render_value(art_animation);
 
-      animation.dist       = distance[x][y]* move.directional[1];
-      animation.angle      = polar_theta[x][y] + move.radial[1];
-      animation.z          = 50;
-      animation.scale_x    = 0.07;
-      animation.scale_y    = 0.07;
-      animation.offset_z   = 5 * move.linear[1];
-      animation.offset_x   = 0;
-      animation.offset_y   = 0;
-      float show2          = render_value(animation);
+      art_animation.dist       = distance[x][y]* move.directional[1];
+      art_animation.angle      = polar_theta[x][y] + move.radial[1];
+      art_animation.z          = 50;
+      art_animation.scale_x    = 0.07;
+      art_animation.scale_y    = 0.07;
+      art_animation.offset_z   = 5 * move.linear[1];
+      art_animation.offset_x   = 0;
+      art_animation.offset_y   = 0;
+      float show2          = render_value(art_animation);
       
-      animation.dist       = distance[x][y]* move.directional[2];
-      animation.angle      = polar_theta[x][y] + move.radial[2];
-      animation.z          = 500;
-      animation.scale_x    = 0.05;
-      animation.scale_y    = 0.05;
-      animation.offset_z   = 5 * move.linear[2];
-      animation.offset_x   = 0;
-      animation.offset_y   = 0;
-      float show3          = render_value(animation);
+      art_animation.dist       = distance[x][y]* move.directional[2];
+      art_animation.angle      = polar_theta[x][y] + move.radial[2];
+      art_animation.z          = 500;
+      art_animation.scale_x    = 0.05;
+      art_animation.scale_y    = 0.05;
+      art_animation.offset_z   = 5 * move.linear[2];
+      art_animation.offset_x   = 0;
+      art_animation.offset_y   = 0;
+      float show3          = render_value(art_animation);
 
-      animation.dist       = distance[x][y] * (move.directional[3]);
-      animation.angle      = polar_theta[x][y] + move.radial[3];
-      animation.z          = 5;
-      animation.scale_x    = 0.09;
-      animation.scale_y    = 0.09;
-      animation.offset_z   = 5 * move.linear[3];
-      animation.offset_x   = 0;
-      animation.offset_y   = 0;
-      float show4          = render_value(animation);
+      art_animation.dist       = distance[x][y] * (move.directional[3]);
+      art_animation.angle      = polar_theta[x][y] + move.radial[3];
+      art_animation.z          = 5;
+      art_animation.scale_x    = 0.09;
+      art_animation.scale_y    = 0.09;
+      art_animation.offset_z   = 5 * move.linear[3];
+      art_animation.offset_x   = 0;
+      art_animation.offset_y   = 0;
+      float show4          = render_value(art_animation);
 
-      animation.dist       = distance[x][y]* move.directional[4];
-      animation.angle      = polar_theta[x][y] + move.radial[4];
-      animation.z          = 50;
-      animation.scale_x    = 0.07;
-      animation.scale_y    = 0.07;
-      animation.offset_z   = 5 * move.linear[4];
-      animation.offset_x   = 0;
-      animation.offset_y   = 0;
-      float show5          = render_value(animation);
+      art_animation.dist       = distance[x][y]* move.directional[4];
+      art_animation.angle      = polar_theta[x][y] + move.radial[4];
+      art_animation.z          = 50;
+      art_animation.scale_x    = 0.07;
+      art_animation.scale_y    = 0.07;
+      art_animation.offset_z   = 5 * move.linear[4];
+      art_animation.offset_x   = 0;
+      art_animation.offset_y   = 0;
+      float show5          = render_value(art_animation);
       
-      animation.dist       = distance[x][y]* move.directional[5];
-      animation.angle      = polar_theta[x][y] + move.radial[5];
-      animation.z          = 500;
-      animation.scale_x    = 0.05;
-      animation.scale_y    = 0.05;
-      animation.offset_z   = 5 * move.linear[5];
-      animation.offset_x   = 0;
-      animation.offset_y   = 0;
-      float show6          = render_value(animation);
+      art_animation.dist       = distance[x][y]* move.directional[5];
+      art_animation.angle      = polar_theta[x][y] + move.radial[5];
+      art_animation.z          = 500;
+      art_animation.scale_x    = 0.05;
+      art_animation.scale_y    = 0.05;
+      art_animation.offset_z   = 5 * move.linear[5];
+      art_animation.offset_x   = 0;
+      art_animation.offset_y   = 0;
+      float show6          = render_value(art_animation);
 
       float radius = radial_filter_radius;   // radius of a radial brightness filter
       float radial = (radius-distance[x][y])/distance[x][y];
@@ -2294,65 +2294,65 @@ void SM6() {
 
       float s = 0.7; // zoom factor
       
-      animation.dist       = distance[x][y] * (move.directional[0]) * s;
-      animation.angle      = polar_theta[x][y] + move.radial[0];
-      animation.z          = 5;
-      animation.scale_x    = 0.09;
-      animation.scale_y    = 0.09;
-      animation.offset_z   = 5 * move.linear[0];
-      animation.offset_x   = 0;
-      animation.offset_y   = 0;
-      float show1          = render_value(animation);
+      art_animation.dist       = distance[x][y] * (move.directional[0]) * s;
+      art_animation.angle      = polar_theta[x][y] + move.radial[0];
+      art_animation.z          = 5;
+      art_animation.scale_x    = 0.09;
+      art_animation.scale_y    = 0.09;
+      art_animation.offset_z   = 5 * move.linear[0];
+      art_animation.offset_x   = 0;
+      art_animation.offset_y   = 0;
+      float show1          = render_value(art_animation);
 
-      animation.dist       = distance[x][y]* move.directional[1] * s;
-      animation.angle      = polar_theta[x][y] + move.radial[1];
-      animation.z          = 50;
-      animation.scale_x    = 0.07;
-      animation.scale_y    = 0.07;
-      animation.offset_z   = 5 * move.linear[1];
-      animation.offset_x   = 0;
-      animation.offset_y   = 0;
-      float show2          = render_value(animation);
+      art_animation.dist       = distance[x][y]* move.directional[1] * s;
+      art_animation.angle      = polar_theta[x][y] + move.radial[1];
+      art_animation.z          = 50;
+      art_animation.scale_x    = 0.07;
+      art_animation.scale_y    = 0.07;
+      art_animation.offset_z   = 5 * move.linear[1];
+      art_animation.offset_x   = 0;
+      art_animation.offset_y   = 0;
+      float show2          = render_value(art_animation);
       
-      animation.dist       = distance[x][y]* move.directional[2] * s;
-      animation.angle      = polar_theta[x][y] + move.radial[2];
-      animation.z          = 500;
-      animation.scale_x    = 0.05;
-      animation.scale_y    = 0.05;
-      animation.offset_z   = 5 * move.linear[2];
-      animation.offset_x   = 0;
-      animation.offset_y   = 0;
-      float show3          = render_value(animation);
+      art_animation.dist       = distance[x][y]* move.directional[2] * s;
+      art_animation.angle      = polar_theta[x][y] + move.radial[2];
+      art_animation.z          = 500;
+      art_animation.scale_x    = 0.05;
+      art_animation.scale_y    = 0.05;
+      art_animation.offset_z   = 5 * move.linear[2];
+      art_animation.offset_x   = 0;
+      art_animation.offset_y   = 0;
+      float show3          = render_value(art_animation);
 
-      animation.dist       = distance[x][y] * (move.directional[3]) * s;
-      animation.angle      = polar_theta[x][y] + move.radial[3];
-      animation.z          = 5;
-      animation.scale_x    = 0.09;
-      animation.scale_y    = 0.09;
-      animation.offset_z   = 5 * move.linear[3];
-      animation.offset_x   = 0;
-      animation.offset_y   = 0;
-      float show4          = render_value(animation);
+      art_animation.dist       = distance[x][y] * (move.directional[3]) * s;
+      art_animation.angle      = polar_theta[x][y] + move.radial[3];
+      art_animation.z          = 5;
+      art_animation.scale_x    = 0.09;
+      art_animation.scale_y    = 0.09;
+      art_animation.offset_z   = 5 * move.linear[3];
+      art_animation.offset_x   = 0;
+      art_animation.offset_y   = 0;
+      float show4          = render_value(art_animation);
 
-      animation.dist       = distance[x][y]* move.directional[4] * s;
-      animation.angle      = polar_theta[x][y] + move.radial[4];
-      animation.z          = 50;
-      animation.scale_x    = 0.07;
-      animation.scale_y    = 0.07;
-      animation.offset_z   = 5 * move.linear[4];
-      animation.offset_x   = 0;
-      animation.offset_y   = 0;
-      float show5          = render_value(animation);
+      art_animation.dist       = distance[x][y]* move.directional[4] * s;
+      art_animation.angle      = polar_theta[x][y] + move.radial[4];
+      art_animation.z          = 50;
+      art_animation.scale_x    = 0.07;
+      art_animation.scale_y    = 0.07;
+      art_animation.offset_z   = 5 * move.linear[4];
+      art_animation.offset_x   = 0;
+      art_animation.offset_y   = 0;
+      float show5          = render_value(art_animation);
       
-      animation.dist       = distance[x][y]* move.directional[5] * s;
-      animation.angle      = polar_theta[x][y] + move.radial[5];
-      animation.z          = 500;
-      animation.scale_x    = 0.05;
-      animation.scale_y    = 0.05;
-      animation.offset_z   = 5 * move.linear[5];
-      animation.offset_x   = 0;
-      animation.offset_y   = 0;
-      float show6          = render_value(animation);
+      art_animation.dist       = distance[x][y]* move.directional[5] * s;
+      art_animation.angle      = polar_theta[x][y] + move.radial[5];
+      art_animation.z          = 500;
+      art_animation.scale_x    = 0.05;
+      art_animation.scale_y    = 0.05;
+      art_animation.offset_z   = 5 * move.linear[5];
+      art_animation.offset_x   = 0;
+      art_animation.offset_y   = 0;
+      float show6          = render_value(art_animation);
 
       float radius = radial_filter_radius;   // radius of a radial brightness filter
       float radial = (radius-distance[x][y])/distance[x][y];
@@ -2395,40 +2395,40 @@ void SM8() {
 
       //float s = 0.7; // zoom factor
       
-      animation.dist       = distance[x][y];
-      animation.angle      = 2;
-      animation.z          = 5;
-      animation.scale_x    = 0.15;
-      animation.scale_y    = 0.15;
-      animation.offset_z   = 0;
-      animation.offset_y   = 50 * move.linear[0];
-      animation.offset_x   = 0;
-      animation.low_limit  = 0;
-      float show1          = render_value(animation);
+      art_animation.dist       = distance[x][y];
+      art_animation.angle      = 2;
+      art_animation.z          = 5;
+      art_animation.scale_x    = 0.15;
+      art_animation.scale_y    = 0.15;
+      art_animation.offset_z   = 0;
+      art_animation.offset_y   = 50 * move.linear[0];
+      art_animation.offset_x   = 0;
+      art_animation.low_limit  = 0;
+      float show1          = render_value(art_animation);
 
-      animation.dist       = distance[x][y];
-      animation.angle      = 2;
-      animation.z          = 150;
-      animation.offset_x   = -50 * move.linear[0];     
-      float show2          = render_value(animation);
+      art_animation.dist       = distance[x][y];
+      art_animation.angle      = 2;
+      art_animation.z          = 150;
+      art_animation.offset_x   = -50 * move.linear[0];     
+      float show2          = render_value(art_animation);
 
-      animation.dist       = distance[x][y];
-      animation.angle      = 1;
-      animation.z          = 550;
-      animation.scale_x    = 0.15;
-      animation.scale_y    = 0.15;
-      animation.offset_x   = 0;
-      animation.offset_y   = -50 * move.linear[1];
-      float show4          = render_value(animation);      
+      art_animation.dist       = distance[x][y];
+      art_animation.angle      = 1;
+      art_animation.z          = 550;
+      art_animation.scale_x    = 0.15;
+      art_animation.scale_y    = 0.15;
+      art_animation.offset_x   = 0;
+      art_animation.offset_y   = -50 * move.linear[1];
+      float show4          = render_value(art_animation);      
 
-      animation.dist       = distance[x][y];
-      animation.angle      = 1;
-      animation.z          = 1250;
-      animation.scale_x    = 0.15;
-      animation.scale_y    = 0.15;
-      animation.offset_x   = 0;
-      animation.offset_y   = 50 * move.linear[1];
-      float show5          = render_value(animation);      
+      art_animation.dist       = distance[x][y];
+      art_animation.angle      = 1;
+      art_animation.z          = 1250;
+      art_animation.scale_x    = 0.15;
+      art_animation.scale_y    = 0.15;
+      art_animation.offset_x   = 0;
+      art_animation.offset_y   = 50 * move.linear[1];
+      float show5          = render_value(art_animation);      
       
      
 
@@ -2471,49 +2471,49 @@ void SM9() {
   for (int x = 0; x < num_x; x++) {
     for (int y = 0; y < num_y; y++) {
 
-      animation.dist       = distance[x][y];
-      animation.angle      = polar_theta[x][y];
-      animation.z          = 5;
-      animation.scale_x    = 0.09;
-      animation.scale_y    = 0.09;
-      animation.offset_y   = -30 * move.linear[0];
-      animation.offset_z   = 0;
-      animation.offset_x   = 0;
-      animation.low_limit  = -1;
-      show1                = render_value(animation);
+      art_animation.dist       = distance[x][y];
+      art_animation.angle      = polar_theta[x][y];
+      art_animation.z          = 5;
+      art_animation.scale_x    = 0.09;
+      art_animation.scale_y    = 0.09;
+      art_animation.offset_y   = -30 * move.linear[0];
+      art_animation.offset_z   = 0;
+      art_animation.offset_x   = 0;
+      art_animation.low_limit  = -1;
+      show1                = render_value(art_animation);
 
-      animation.dist       = distance[x][y];
-      animation.angle      = polar_theta[x][y];
-      animation.z          = 50;
-      animation.scale_x    = 0.09;
-      animation.scale_y    = 0.09;
-      animation.offset_y   = -30 * move.linear[1];
-      animation.offset_z   = 0;
-      animation.offset_x   = 0;
-      animation.low_limit  = -1;
-      show2                = render_value(animation);
+      art_animation.dist       = distance[x][y];
+      art_animation.angle      = polar_theta[x][y];
+      art_animation.z          = 50;
+      art_animation.scale_x    = 0.09;
+      art_animation.scale_y    = 0.09;
+      art_animation.offset_y   = -30 * move.linear[1];
+      art_animation.offset_z   = 0;
+      art_animation.offset_x   = 0;
+      art_animation.low_limit  = -1;
+      show2                = render_value(art_animation);
 
-      animation.dist       = distance[x][y];// + show1/64;
-      animation.angle      = polar_theta[x][y] + 2 + (show1 / 255) * PI;
-      animation.z          = 5;
-      animation.scale_x    = 0.09;
-      animation.scale_y    = 0.09;
-      animation.offset_y   = -10 * move.linear[0];
-      animation.offset_z   = 0;
-      animation.offset_x   = 0;
-      animation.low_limit  = 0;
-      show3                = render_value(animation);
+      art_animation.dist       = distance[x][y];// + show1/64;
+      art_animation.angle      = polar_theta[x][y] + 2 + (show1 / 255) * PI;
+      art_animation.z          = 5;
+      art_animation.scale_x    = 0.09;
+      art_animation.scale_y    = 0.09;
+      art_animation.offset_y   = -10 * move.linear[0];
+      art_animation.offset_z   = 0;
+      art_animation.offset_x   = 0;
+      art_animation.low_limit  = 0;
+      show3                = render_value(art_animation);
 
-      animation.dist       = distance[x][y];
-      animation.angle      = polar_theta[x][y] + 2 +(show2 / 255) * PI;;
-      animation.z          = 5;
-      animation.scale_x    = 0.09;
-      animation.scale_y    = 0.09;
-      animation.offset_y   = -20 * move.linear[0];
-      animation.offset_z   = 0;
-      animation.offset_x   = 0;
-      animation.low_limit  = 0;
-      show4                = render_value(animation);
+      art_animation.dist       = distance[x][y];
+      art_animation.angle      = polar_theta[x][y] + 2 +(show2 / 255) * PI;;
+      art_animation.z          = 5;
+      art_animation.scale_x    = 0.09;
+      art_animation.scale_y    = 0.09;
+      art_animation.offset_y   = -20 * move.linear[0];
+      art_animation.offset_z   = 0;
+      art_animation.offset_x   = 0;
+      art_animation.low_limit  = 0;
+      show4                = render_value(art_animation);
 
       show5 = screen(show4, show3);
       show6 = colordodge(show5, show3);
@@ -2554,49 +2554,49 @@ void SM10() {
 
       float scale = 0.6;
       
-      animation.dist       = distance[x][y];
-      animation.angle      = polar_theta[x][y];
-      animation.z          = 5;
-      animation.scale_x    = 0.09 * scale;
-      animation.scale_y    = 0.09 * scale;
-      animation.offset_y   = -30 * move.linear[0];
-      animation.offset_z   = 0;
-      animation.offset_x   = 0;
-      animation.low_limit  = -1;
-      show1                = render_value(animation);
+      art_animation.dist       = distance[x][y];
+      art_animation.angle      = polar_theta[x][y];
+      art_animation.z          = 5;
+      art_animation.scale_x    = 0.09 * scale;
+      art_animation.scale_y    = 0.09 * scale;
+      art_animation.offset_y   = -30 * move.linear[0];
+      art_animation.offset_z   = 0;
+      art_animation.offset_x   = 0;
+      art_animation.low_limit  = -1;
+      show1                = render_value(art_animation);
 
-      animation.dist       = distance[x][y];
-      animation.angle      = polar_theta[x][y];
-      animation.z          = 50;
-      animation.scale_x    = 0.09 * scale;
-      animation.scale_y    = 0.09 * scale;
-      animation.offset_y   = -30 * move.linear[1];
-      animation.offset_z   = 0;
-      animation.offset_x   = 0;
-      animation.low_limit  = -1;
-      show2                = render_value(animation);
+      art_animation.dist       = distance[x][y];
+      art_animation.angle      = polar_theta[x][y];
+      art_animation.z          = 50;
+      art_animation.scale_x    = 0.09 * scale;
+      art_animation.scale_y    = 0.09 * scale;
+      art_animation.offset_y   = -30 * move.linear[1];
+      art_animation.offset_z   = 0;
+      art_animation.offset_x   = 0;
+      art_animation.low_limit  = -1;
+      show2                = render_value(art_animation);
 
-      animation.dist       = distance[x][y];// + show1/64;
-      animation.angle      = polar_theta[x][y] + 2 + (show1 / 255) * PI;
-      animation.z          = 5;
-      animation.scale_x    = 0.09 * scale;
-      animation.scale_y    = 0.09 * scale;
-      animation.offset_y   = -10 * move.linear[0];
-      animation.offset_z   = 0;
-      animation.offset_x   = 0;
-      animation.low_limit  = 0;
-      show3                = render_value(animation);
+      art_animation.dist       = distance[x][y];// + show1/64;
+      art_animation.angle      = polar_theta[x][y] + 2 + (show1 / 255) * PI;
+      art_animation.z          = 5;
+      art_animation.scale_x    = 0.09 * scale;
+      art_animation.scale_y    = 0.09 * scale;
+      art_animation.offset_y   = -10 * move.linear[0];
+      art_animation.offset_z   = 0;
+      art_animation.offset_x   = 0;
+      art_animation.low_limit  = 0;
+      show3                = render_value(art_animation);
 
-      animation.dist       = distance[x][y];
-      animation.angle      = polar_theta[x][y] + 2 +(show2 / 255) * PI;;
-      animation.z          = 5;
-      animation.scale_x    = 0.09 * scale;
-      animation.scale_y    = 0.09 * scale;
-      animation.offset_y   = -20 * move.linear[0];
-      animation.offset_z   = 0;
-      animation.offset_x   = 0;
-      animation.low_limit  = 0;
-      show4                = render_value(animation);
+      art_animation.dist       = distance[x][y];
+      art_animation.angle      = polar_theta[x][y] + 2 +(show2 / 255) * PI;;
+      art_animation.z          = 5;
+      art_animation.scale_x    = 0.09 * scale;
+      art_animation.scale_y    = 0.09 * scale;
+      art_animation.offset_y   = -20 * move.linear[0];
+      art_animation.offset_z   = 0;
+      art_animation.offset_x   = 0;
+      art_animation.low_limit  = 0;
+      show4                = render_value(art_animation);
 
       show5 = screen(show4, show3);
       show6 = colordodge(show5, show3);
@@ -2639,50 +2639,50 @@ void Complex_Kaleido() {
   for (int x = 0; x < num_x; x++) {
     for (int y = 0; y < num_y; y++) {
 
-      animation.dist       = distance[x][y];
-      animation.angle      = 5 * polar_theta[x][y] + 10 * move.radial[0] + animation.dist /2;
-      animation.z          = 5;
-      animation.scale_x    = 0.07;
-      animation.scale_y    = 0.07;
-      animation.offset_z   = 0;
-      animation.offset_x   = -30 * move.linear[0];
-      animation.offset_y   = 0;
-      animation.low_limit  = 0;
-      show1                = render_value(animation);
+      art_animation.dist       = distance[x][y];
+      art_animation.angle      = 5 * polar_theta[x][y] + 10 * move.radial[0] + art_animation.dist /2;
+      art_animation.z          = 5;
+      art_animation.scale_x    = 0.07;
+      art_animation.scale_y    = 0.07;
+      art_animation.offset_z   = 0;
+      art_animation.offset_x   = -30 * move.linear[0];
+      art_animation.offset_y   = 0;
+      art_animation.low_limit  = 0;
+      show1                = render_value(art_animation);
 
-      animation.dist       = distance[x][y];
-      animation.angle      = -5 * polar_theta[x][y] + 12 * move.radial[1] + animation.dist /2;
-      animation.z          = 500;
-      animation.scale_x    = 0.07;
-      animation.scale_y    = 0.07;
-      animation.offset_z   = 0;
-      animation.offset_x   = -30 * move.linear[1];
-      animation.offset_y   = 0;
-      animation.low_limit  = 0;
-      show2                = render_value(animation);
+      art_animation.dist       = distance[x][y];
+      art_animation.angle      = -5 * polar_theta[x][y] + 12 * move.radial[1] + art_animation.dist /2;
+      art_animation.z          = 500;
+      art_animation.scale_x    = 0.07;
+      art_animation.scale_y    = 0.07;
+      art_animation.offset_z   = 0;
+      art_animation.offset_x   = -30 * move.linear[1];
+      art_animation.offset_y   = 0;
+      art_animation.low_limit  = 0;
+      show2                = render_value(art_animation);
 
-      animation.dist       = distance[x][y];
-      animation.angle      = -5 * polar_theta[x][y] + 12 * move.radial[2] + animation.dist /2;
-      animation.z          = 500;
-      animation.scale_x    = 0.05;
-      animation.scale_y    = 0.05;
-      animation.offset_z   = 0;
-      animation.offset_x   = -40 * move.linear[2];
-      animation.offset_y   = 0;
-      animation.low_limit  = 0;
-      show3                = render_value(animation);
+      art_animation.dist       = distance[x][y];
+      art_animation.angle      = -5 * polar_theta[x][y] + 12 * move.radial[2] + art_animation.dist /2;
+      art_animation.z          = 500;
+      art_animation.scale_x    = 0.05;
+      art_animation.scale_y    = 0.05;
+      art_animation.offset_z   = 0;
+      art_animation.offset_x   = -40 * move.linear[2];
+      art_animation.offset_y   = 0;
+      art_animation.low_limit  = 0;
+      show3                = render_value(art_animation);
 
       
-      animation.dist       = distance[x][y];
-      animation.angle      = 5 * polar_theta[x][y] + 12 * move.radial[3] + animation.dist /2;
-      animation.z          = 500;
-      animation.scale_x    = 0.09;
-      animation.scale_y    = 0.09;
-      animation.offset_z   = 0;
-      animation.offset_x   = -35 * move.linear[3];
-      animation.offset_y   = 0;
-      animation.low_limit  = 0;
-      show4                = render_value(animation);
+      art_animation.dist       = distance[x][y];
+      art_animation.angle      = 5 * polar_theta[x][y] + 12 * move.radial[3] + art_animation.dist /2;
+      art_animation.z          = 500;
+      art_animation.scale_x    = 0.09;
+      art_animation.scale_y    = 0.09;
+      art_animation.offset_z   = 0;
+      art_animation.offset_x   = -35 * move.linear[3];
+      art_animation.offset_y   = 0;
+      art_animation.low_limit  = 0;
+      show4                = render_value(art_animation);
 
       show5 = screen(show4, show3);
       show6 = colordodge(show2, show3);
@@ -2728,50 +2728,50 @@ void Complex_Kaleido_2() {
   for (int x = 0; x < num_x; x++) {
     for (int y = 0; y < num_y; y++) {
 
-      animation.dist       = distance[x][y];
-      animation.angle      = 5 * polar_theta[x][y] + 10 * move.radial[0] + animation.dist /2;
-      animation.z          = 5;
-      animation.scale_x    = 0.07 * size;
-      animation.scale_y    = 0.07 * size;
-      animation.offset_z   = 0;
-      animation.offset_x   = -30 * move.linear[0];
-      animation.offset_y   = 0;
-      animation.low_limit  = 0;
-      show1                = render_value(animation);
+      art_animation.dist       = distance[x][y];
+      art_animation.angle      = 5 * polar_theta[x][y] + 10 * move.radial[0] + art_animation.dist /2;
+      art_animation.z          = 5;
+      art_animation.scale_x    = 0.07 * size;
+      art_animation.scale_y    = 0.07 * size;
+      art_animation.offset_z   = 0;
+      art_animation.offset_x   = -30 * move.linear[0];
+      art_animation.offset_y   = 0;
+      art_animation.low_limit  = 0;
+      show1                = render_value(art_animation);
 
-      animation.dist       = distance[x][y];
-      animation.angle      = -5 * polar_theta[x][y] + 12 * move.radial[1] + animation.dist /2;
-      animation.z          = 500;
-      animation.scale_x    = 0.07 * size;
-      animation.scale_y    = 0.07 * size;
-      animation.offset_z   = 0;
-      animation.offset_x   = -30 * move.linear[1];
-      animation.offset_y   = 0;
-      animation.low_limit  = 0;
-      show2                = render_value(animation);
+      art_animation.dist       = distance[x][y];
+      art_animation.angle      = -5 * polar_theta[x][y] + 12 * move.radial[1] + art_animation.dist /2;
+      art_animation.z          = 500;
+      art_animation.scale_x    = 0.07 * size;
+      art_animation.scale_y    = 0.07 * size;
+      art_animation.offset_z   = 0;
+      art_animation.offset_x   = -30 * move.linear[1];
+      art_animation.offset_y   = 0;
+      art_animation.low_limit  = 0;
+      show2                = render_value(art_animation);
 
-      animation.dist       = distance[x][y];
-      animation.angle      = -5 * polar_theta[x][y] + 12 * move.radial[2] + animation.dist /2;
-      animation.z          = 500;
-      animation.scale_x    = 0.05 * size;
-      animation.scale_y    = 0.05 * size;
-      animation.offset_z   = 0;
-      animation.offset_x   = -40 * move.linear[2];
-      animation.offset_y   = 0;
-      animation.low_limit  = 0;
-      show3                = render_value(animation);
+      art_animation.dist       = distance[x][y];
+      art_animation.angle      = -5 * polar_theta[x][y] + 12 * move.radial[2] + art_animation.dist /2;
+      art_animation.z          = 500;
+      art_animation.scale_x    = 0.05 * size;
+      art_animation.scale_y    = 0.05 * size;
+      art_animation.offset_z   = 0;
+      art_animation.offset_x   = -40 * move.linear[2];
+      art_animation.offset_y   = 0;
+      art_animation.low_limit  = 0;
+      show3                = render_value(art_animation);
 
       
-      animation.dist       = distance[x][y];
-      animation.angle      = 5 * polar_theta[x][y] + 12 * move.radial[3] + animation.dist /2;
-      animation.z          = 500;
-      animation.scale_x    = 0.09 * size;
-      animation.scale_y    = 0.09 * size;
-      animation.offset_z   = 0;
-      animation.offset_x   = -35 * move.linear[3];
-      animation.offset_y   = 0;
-      animation.low_limit  = 0;
-      show4                = render_value(animation);
+      art_animation.dist       = distance[x][y];
+      art_animation.angle      = 5 * polar_theta[x][y] + 12 * move.radial[3] + art_animation.dist /2;
+      art_animation.z          = 500;
+      art_animation.scale_x    = 0.09 * size;
+      art_animation.scale_y    = 0.09 * size;
+      art_animation.offset_z   = 0;
+      art_animation.offset_x   = -35 * move.linear[3];
+      art_animation.offset_y   = 0;
+      art_animation.low_limit  = 0;
+      show4                = render_value(art_animation);
 
       show5 = screen(show4, show3);
       show6 = colordodge(show2, show3);
@@ -2821,50 +2821,50 @@ void Complex_Kaleido_3() {
   for (int x = 0; x < num_x; x++) {
     for (int y = 0; y < num_y; y++) {
 
-      animation.dist       = distance[x][y];
-      animation.angle      = 5 * polar_theta[x][y] + 10 * move.radial[0] + animation.dist / (((move.directional[0] + 3)*2)) + move.noise_angle[0]*q;
-      animation.z          = 5;
-      animation.scale_x    = 0.08 * size * (move.directional[0]+1.5);
-      animation.scale_y    = 0.07 * size;
-      animation.offset_z   = -10 * move.linear[0];
-      animation.offset_x   = -30 * move.linear[0];
-      animation.offset_y   = 0;
-      animation.low_limit  = 0;
-      show1                = render_value(animation);
+      art_animation.dist       = distance[x][y];
+      art_animation.angle      = 5 * polar_theta[x][y] + 10 * move.radial[0] + art_animation.dist / (((move.directional[0] + 3)*2)) + move.noise_angle[0]*q;
+      art_animation.z          = 5;
+      art_animation.scale_x    = 0.08 * size * (move.directional[0]+1.5);
+      art_animation.scale_y    = 0.07 * size;
+      art_animation.offset_z   = -10 * move.linear[0];
+      art_animation.offset_x   = -30 * move.linear[0];
+      art_animation.offset_y   = 0;
+      art_animation.low_limit  = 0;
+      show1                = render_value(art_animation);
 
-      animation.dist       = distance[x][y];
-      animation.angle      = -5 * polar_theta[x][y] + 10 * move.radial[1] + animation.dist / (((move.directional[1] + 3)*2))+ move.noise_angle[1]*q;
-      animation.z          = 500;
-      animation.scale_x    = 0.07 * size * (move.directional[1]+1.1);
-      animation.scale_y    = 0.07 * size * (move.directional[2]+1.3);;
-      animation.offset_z   = -12 * move.linear[1];;
-      animation.offset_x   = -(num_x -1) * move.linear[1];
-      animation.offset_y   = 0;
-      animation.low_limit  = 0;
-      show2                = render_value(animation);
+      art_animation.dist       = distance[x][y];
+      art_animation.angle      = -5 * polar_theta[x][y] + 10 * move.radial[1] + art_animation.dist / (((move.directional[1] + 3)*2))+ move.noise_angle[1]*q;
+      art_animation.z          = 500;
+      art_animation.scale_x    = 0.07 * size * (move.directional[1]+1.1);
+      art_animation.scale_y    = 0.07 * size * (move.directional[2]+1.3);;
+      art_animation.offset_z   = -12 * move.linear[1];;
+      art_animation.offset_x   = -(num_x -1) * move.linear[1];
+      art_animation.offset_y   = 0;
+      art_animation.low_limit  = 0;
+      show2                = render_value(art_animation);
 
-      animation.dist       = distance[x][y];
-      animation.angle      = -5 * polar_theta[x][y] + 12 * move.radial[2] + animation.dist /(((move.directional[3] + 3)*2))+ move.noise_angle[2]*q;
-      animation.z          = 500;
-      animation.scale_x    = 0.05 * size * (move.directional[3]+1.5);;
-      animation.scale_y    = 0.05 * size * (move.directional[4]+1.5);;
-      animation.offset_z   = -12 * move.linear[3];
-      animation.offset_x   = -40 * move.linear[3];
-      animation.offset_y   = 0;
-      animation.low_limit  = 0;
-      show3                = render_value(animation);
+      art_animation.dist       = distance[x][y];
+      art_animation.angle      = -5 * polar_theta[x][y] + 12 * move.radial[2] + art_animation.dist /(((move.directional[3] + 3)*2))+ move.noise_angle[2]*q;
+      art_animation.z          = 500;
+      art_animation.scale_x    = 0.05 * size * (move.directional[3]+1.5);;
+      art_animation.scale_y    = 0.05 * size * (move.directional[4]+1.5);;
+      art_animation.offset_z   = -12 * move.linear[3];
+      art_animation.offset_x   = -40 * move.linear[3];
+      art_animation.offset_y   = 0;
+      art_animation.low_limit  = 0;
+      show3                = render_value(art_animation);
 
       
-      animation.dist       = distance[x][y];
-      animation.angle      = 5 * polar_theta[x][y] + 12 * move.radial[3] + animation.dist /(((move.directional[5] + 3)*2))+ move.noise_angle[3]*q;
-      animation.z          = 500;
-      animation.scale_x    = 0.09 * size * (move.directional[5]+1.5);;;
-      animation.scale_y    = 0.09 * size * (move.directional[6]+1.5);;;
-      animation.offset_z   = 0;
-      animation.offset_x   = -35 * move.linear[3];
-      animation.offset_y   = 0;
-      animation.low_limit  = 0;
-      show4                = render_value(animation);
+      art_animation.dist       = distance[x][y];
+      art_animation.angle      = 5 * polar_theta[x][y] + 12 * move.radial[3] + art_animation.dist /(((move.directional[5] + 3)*2))+ move.noise_angle[3]*q;
+      art_animation.z          = 500;
+      art_animation.scale_x    = 0.09 * size * (move.directional[5]+1.5);;;
+      art_animation.scale_y    = 0.09 * size * (move.directional[6]+1.5);;;
+      art_animation.offset_z   = 0;
+      art_animation.offset_x   = -35 * move.linear[3];
+      art_animation.offset_y   = 0;
+      art_animation.low_limit  = 0;
+      show4                = render_value(art_animation);
 
       show5 = screen(show4, show3)-show2;
       show6 = colordodge(show4, show1);
@@ -2919,50 +2919,50 @@ void Complex_Kaleido_4() {
 
       float s = 1 +  move.directional[6]*0.3;
 
-      animation.dist       = distance[x][y] * s;
-      animation.angle      = 5 * polar_theta[x][y] + 1 * move.radial[0] - animation.dist / (3+move.directional[0]*0.5);
-      animation.z          = 5;
-      animation.scale_x    = 0.08 * size + (move.directional[0]*0.01);
-      animation.scale_y    = 0.07 * size + (move.directional[1]*0.01);
-      animation.offset_z   = -10 * move.linear[0];
-      animation.offset_x   = 0;//-30 * move.linear[0];
-      animation.offset_y   = 0;
-      animation.low_limit  = 0;
-      show1                = render_value(animation);
+      art_animation.dist       = distance[x][y] * s;
+      art_animation.angle      = 5 * polar_theta[x][y] + 1 * move.radial[0] - art_animation.dist / (3+move.directional[0]*0.5);
+      art_animation.z          = 5;
+      art_animation.scale_x    = 0.08 * size + (move.directional[0]*0.01);
+      art_animation.scale_y    = 0.07 * size + (move.directional[1]*0.01);
+      art_animation.offset_z   = -10 * move.linear[0];
+      art_animation.offset_x   = 0;//-30 * move.linear[0];
+      art_animation.offset_y   = 0;
+      art_animation.low_limit  = 0;
+      show1                = render_value(art_animation);
 
-      animation.dist       = distance[x][y] * s;
-      animation.angle      = 5 * polar_theta[x][y] + 1 * move.radial[1] + animation.dist / (3+move.directional[1]*0.5);
-      animation.z          = 50;
-      animation.scale_x    = 0.08 * size + (move.directional[1]*0.01);
-      animation.scale_y    = 0.07 * size + (move.directional[2]*0.01);
-      animation.offset_z   = -10 * move.linear[1];
-      animation.offset_x   = 0;//-30 * move.linear[0];
-      animation.offset_y   = 0;
-      animation.low_limit  = 0;
-      show2                = render_value(animation);
+      art_animation.dist       = distance[x][y] * s;
+      art_animation.angle      = 5 * polar_theta[x][y] + 1 * move.radial[1] + art_animation.dist / (3+move.directional[1]*0.5);
+      art_animation.z          = 50;
+      art_animation.scale_x    = 0.08 * size + (move.directional[1]*0.01);
+      art_animation.scale_y    = 0.07 * size + (move.directional[2]*0.01);
+      art_animation.offset_z   = -10 * move.linear[1];
+      art_animation.offset_x   = 0;//-30 * move.linear[0];
+      art_animation.offset_y   = 0;
+      art_animation.low_limit  = 0;
+      show2                = render_value(art_animation);
 
-      animation.dist       = distance[x][y];
-      animation.angle      = 1;
-      animation.z          = 500;
-      animation.scale_x    = 0.2 * size ;
-      animation.scale_y    = 0.2 * size ;
-      animation.offset_z   = 0;//-12 * move.linear[3];
-      animation.offset_y   = +7 * move.linear[3] +  move.noise_angle[3];
-      animation.offset_x   = 0;
-      animation.low_limit  = 0;
-      show3                = render_value(animation);
+      art_animation.dist       = distance[x][y];
+      art_animation.angle      = 1;
+      art_animation.z          = 500;
+      art_animation.scale_x    = 0.2 * size ;
+      art_animation.scale_y    = 0.2 * size ;
+      art_animation.offset_z   = 0;//-12 * move.linear[3];
+      art_animation.offset_y   = +7 * move.linear[3] +  move.noise_angle[3];
+      art_animation.offset_x   = 0;
+      art_animation.low_limit  = 0;
+      show3                = render_value(art_animation);
 
       
-      animation.dist       = distance[x][y];
-      animation.angle      = 5 * polar_theta[x][y] + 12 * move.radial[3] + animation.dist /(((move.directional[5] + 3)*2))+ move.noise_angle[3]*q;
-      animation.z          = 500;
-      animation.scale_x    = 0.09 * size * (move.directional[5]+1.5);;;
-      animation.scale_y    = 0.09 * size * (move.directional[6]+1.5);;;
-      animation.offset_z   = 0;
-      animation.offset_x   = -35 * move.linear[3];
-      animation.offset_y   = 0;
-      animation.low_limit  = 0;
-      show4                = render_value(animation);
+      art_animation.dist       = distance[x][y];
+      art_animation.angle      = 5 * polar_theta[x][y] + 12 * move.radial[3] + art_animation.dist /(((move.directional[5] + 3)*2))+ move.noise_angle[3]*q;
+      art_animation.z          = 500;
+      art_animation.scale_x    = 0.09 * size * (move.directional[5]+1.5);;;
+      art_animation.scale_y    = 0.09 * size * (move.directional[6]+1.5);;;
+      art_animation.offset_z   = 0;
+      art_animation.offset_x   = -35 * move.linear[3];
+      art_animation.offset_y   = 0;
+      art_animation.low_limit  = 0;
+      show4                = render_value(art_animation);
 
       //show5 = screen(show4, show3)-show2;
       //show6 = colordodge(show4, show1);
@@ -3026,16 +3026,16 @@ void Complex_Kaleido_5() {
 
       float s = 1 +  move.directional[6]*0.8;
 
-      animation.dist       = distance[x][y] * s;
-      animation.angle      = 10*move.radial[6] + 50 * move.directional[5] * polar_theta[x][y]  - animation.dist / 3;
-      animation.z          = 5;
-      animation.scale_x    = 0.08 * size ;
-      animation.scale_y    = 0.07 * size ;
-      animation.offset_z   = -10 * move.linear[0];
-      animation.offset_x   = 0;
-      animation.offset_y   = 0;
-      animation.low_limit  = -0.5;
-      show1                = render_value(animation);
+      art_animation.dist       = distance[x][y] * s;
+      art_animation.angle      = 10*move.radial[6] + 50 * move.directional[5] * polar_theta[x][y]  - art_animation.dist / 3;
+      art_animation.z          = 5;
+      art_animation.scale_x    = 0.08 * size ;
+      art_animation.scale_y    = 0.07 * size ;
+      art_animation.offset_z   = -10 * move.linear[0];
+      art_animation.offset_x   = 0;
+      art_animation.offset_y   = 0;
+      art_animation.low_limit  = -0.5;
+      show1                = render_value(art_animation);
 
      
       float radius = radial_filter_radius;   // radius of a radial brightness filter
@@ -3073,27 +3073,27 @@ void Complex_Kaleido_6() {
   for (int x = 0; x < num_x; x++) {
     for (int y = 0; y < num_y; y++) {
 
-      animation.dist       = distance[x][y];
-      animation.angle      = 16 * polar_theta[x][y] + 16*move.radial[0];
-      animation.z          = 5;
-      animation.scale_x    = 0.06 ;
-      animation.scale_y    = 0.06 ;
-      animation.offset_z   = -10 * move.linear[0];
-      animation.offset_y   = 10 * move.noise_angle[0];
-      animation.offset_x   = 10 * move.noise_angle[4];
-      animation.low_limit  = 0;
-      show1                = render_value(animation);
+      art_animation.dist       = distance[x][y];
+      art_animation.angle      = 16 * polar_theta[x][y] + 16*move.radial[0];
+      art_animation.z          = 5;
+      art_animation.scale_x    = 0.06 ;
+      art_animation.scale_y    = 0.06 ;
+      art_animation.offset_z   = -10 * move.linear[0];
+      art_animation.offset_y   = 10 * move.noise_angle[0];
+      art_animation.offset_x   = 10 * move.noise_angle[4];
+      art_animation.low_limit  = 0;
+      show1                = render_value(art_animation);
 
-      animation.dist       = distance[x][y];
-      animation.angle      = 16 * polar_theta[x][y] + 16*move.radial[1];
-      animation.z          = 500;
-      animation.scale_x    = 0.06 ;
-      animation.scale_y    = 0.06 ;
-      animation.offset_z   = -10 * move.linear[1];
-      animation.offset_y   = 10 * move.noise_angle[1];
-      animation.offset_x   = 10 * move.noise_angle[3];
-      animation.low_limit  = 0;
-      show2                = render_value(animation);
+      art_animation.dist       = distance[x][y];
+      art_animation.angle      = 16 * polar_theta[x][y] + 16*move.radial[1];
+      art_animation.z          = 500;
+      art_animation.scale_x    = 0.06 ;
+      art_animation.scale_y    = 0.06 ;
+      art_animation.offset_z   = -10 * move.linear[1];
+      art_animation.offset_y   = 10 * move.noise_angle[1];
+      art_animation.offset_x   = 10 * move.noise_angle[3];
+      art_animation.low_limit  = 0;
+      show2                = render_value(art_animation);
 
      
       //float radius = radial_filter_radius;   // radius of a radial brightness filter
@@ -3131,49 +3131,49 @@ void Water() {
   for (int x = 0; x < num_x; x++) {
     for (int y = 0; y < num_y; y++) {
 
-      animation.dist       = distance[x][y] + 4*sinf(move.directional[5]*PI+(float)x/2) + 4 * cosf(move.directional[6]*PI+float(y)/2);
-      animation.angle      = 1 * polar_theta[x][y];
-      animation.z          = 5;
-      animation.scale_x    = 0.06 ;
-      animation.scale_y    = 0.06 ;
-      animation.offset_z   = -10 * move.linear[0];
-      animation.offset_y   = 10;
-      animation.offset_x   = 10;
-      animation.low_limit  = 0;
-      show1                = render_value(animation);
+      art_animation.dist       = distance[x][y] + 4*sinf(move.directional[5]*PI+(float)x/2) + 4 * cosf(move.directional[6]*PI+float(y)/2);
+      art_animation.angle      = 1 * polar_theta[x][y];
+      art_animation.z          = 5;
+      art_animation.scale_x    = 0.06 ;
+      art_animation.scale_y    = 0.06 ;
+      art_animation.offset_z   = -10 * move.linear[0];
+      art_animation.offset_y   = 10;
+      art_animation.offset_x   = 10;
+      art_animation.low_limit  = 0;
+      show1                = render_value(art_animation);
 
-      animation.dist       = (10+move.directional[0]) * sinf(-move.radial[5]+move.radial[0]+(distance[x][y] / (3)));
-      animation.angle      = 1 * polar_theta[x][y];
-      animation.z          = 5;
-      animation.scale_x    = 0.1 ;
-      animation.scale_y    = 0.1 ;
-      animation.offset_z   = -10 ;
-      animation.offset_y   = 20 * move.linear[0];
-      animation.offset_x   = 10;
-      animation.low_limit  = 0;
-      show2                = render_value(animation);
+      art_animation.dist       = (10+move.directional[0]) * sinf(-move.radial[5]+move.radial[0]+(distance[x][y] / (3)));
+      art_animation.angle      = 1 * polar_theta[x][y];
+      art_animation.z          = 5;
+      art_animation.scale_x    = 0.1 ;
+      art_animation.scale_y    = 0.1 ;
+      art_animation.offset_z   = -10 ;
+      art_animation.offset_y   = 20 * move.linear[0];
+      art_animation.offset_x   = 10;
+      art_animation.low_limit  = 0;
+      show2                = render_value(art_animation);
 
-      animation.dist       = (10+move.directional[1]) * sinf(-move.radial[5]+move.radial[1]+(distance[x][y] / (3)));
-      animation.angle      = 1 * polar_theta[x][y];
-      animation.z          = 500;
-      animation.scale_x    = 0.1 ;
-      animation.scale_y    = 0.1 ;
-      animation.offset_z   = -10 ;
-      animation.offset_y   = 20 * move.linear[1];
-      animation.offset_x   = 10;
-      animation.low_limit  = 0;
-      show3                = render_value(animation);
+      art_animation.dist       = (10+move.directional[1]) * sinf(-move.radial[5]+move.radial[1]+(distance[x][y] / (3)));
+      art_animation.angle      = 1 * polar_theta[x][y];
+      art_animation.z          = 500;
+      art_animation.scale_x    = 0.1 ;
+      art_animation.scale_y    = 0.1 ;
+      art_animation.offset_z   = -10 ;
+      art_animation.offset_y   = 20 * move.linear[1];
+      art_animation.offset_x   = 10;
+      art_animation.low_limit  = 0;
+      show3                = render_value(art_animation);
 
-      animation.dist       = (10+move.directional[2]) * sinf(-move.radial[5]+move.radial[2]+(distance[x][y] / (3)));
-      animation.angle      = 1 * polar_theta[x][y];
-      animation.z          = 500;
-      animation.scale_x    = 0.1 ;
-      animation.scale_y    = 0.1 ;
-      animation.offset_z   = -10 ;
-      animation.offset_y   = 20 * move.linear[2];
-      animation.offset_x   = 10;
-      animation.low_limit  = 0;
-      show4                = render_value(animation);
+      art_animation.dist       = (10+move.directional[2]) * sinf(-move.radial[5]+move.radial[2]+(distance[x][y] / (3)));
+      art_animation.angle      = 1 * polar_theta[x][y];
+      art_animation.z          = 500;
+      art_animation.scale_x    = 0.1 ;
+      art_animation.scale_y    = 0.1 ;
+      art_animation.offset_z   = -10 ;
+      art_animation.offset_y   = 20 * move.linear[2];
+      art_animation.offset_x   = 10;
+      art_animation.low_limit  = 0;
+      show4                = render_value(art_animation);
 
 
       
@@ -3222,49 +3222,49 @@ void Parametric_Water() {
       float s = 4;
       float f = 10 + 2* move.directional[0];
 
-      animation.dist       = (f+move.directional[0]) * sinf(-move.radial[5]+move.radial[0]+(distance[x][y] / (s)));
-      animation.angle      = 1 * polar_theta[x][y];
-      animation.z          = 5;
-      animation.scale_x    = 0.1 ;
-      animation.scale_y    = 0.1 ;
-      animation.offset_z   = -10 ;
-      animation.offset_y   = 20 * move.linear[0];
-      animation.offset_x   = 10;
-      animation.low_limit  = 0;
-      show2                = render_value(animation);
+      art_animation.dist       = (f+move.directional[0]) * sinf(-move.radial[5]+move.radial[0]+(distance[x][y] / (s)));
+      art_animation.angle      = 1 * polar_theta[x][y];
+      art_animation.z          = 5;
+      art_animation.scale_x    = 0.1 ;
+      art_animation.scale_y    = 0.1 ;
+      art_animation.offset_z   = -10 ;
+      art_animation.offset_y   = 20 * move.linear[0];
+      art_animation.offset_x   = 10;
+      art_animation.low_limit  = 0;
+      show2                = render_value(art_animation);
 
-      animation.dist       = (f+move.directional[1]) * sinf(-move.radial[5]+move.radial[1]+(distance[x][y] / (s)));
-      animation.angle      = 1 * polar_theta[x][y];
-      animation.z          = 500;
-      animation.scale_x    = 0.1 ;
-      animation.scale_y    = 0.1 ;
-      animation.offset_z   = -10 ;
-      animation.offset_y   = 20 * move.linear[1];
-      animation.offset_x   = 10;
-      animation.low_limit  = 0;
-      show3                = render_value(animation);
+      art_animation.dist       = (f+move.directional[1]) * sinf(-move.radial[5]+move.radial[1]+(distance[x][y] / (s)));
+      art_animation.angle      = 1 * polar_theta[x][y];
+      art_animation.z          = 500;
+      art_animation.scale_x    = 0.1 ;
+      art_animation.scale_y    = 0.1 ;
+      art_animation.offset_z   = -10 ;
+      art_animation.offset_y   = 20 * move.linear[1];
+      art_animation.offset_x   = 10;
+      art_animation.low_limit  = 0;
+      show3                = render_value(art_animation);
 
-      animation.dist       = (f+move.directional[2]) * sinf(-move.radial[5]+move.radial[2]+(distance[x][y] / (s)));
-      animation.angle      = 1 * polar_theta[x][y];
-      animation.z          = 5000;
-      animation.scale_x    = 0.1 ;
-      animation.scale_y    = 0.1 ;
-      animation.offset_z   = -10 ;
-      animation.offset_y   = 20 * move.linear[2];
-      animation.offset_x   = 10;
-      animation.low_limit  = 0;
-      show4                = render_value(animation);
+      art_animation.dist       = (f+move.directional[2]) * sinf(-move.radial[5]+move.radial[2]+(distance[x][y] / (s)));
+      art_animation.angle      = 1 * polar_theta[x][y];
+      art_animation.z          = 5000;
+      art_animation.scale_x    = 0.1 ;
+      art_animation.scale_y    = 0.1 ;
+      art_animation.offset_z   = -10 ;
+      art_animation.offset_y   = 20 * move.linear[2];
+      art_animation.offset_x   = 10;
+      art_animation.low_limit  = 0;
+      show4                = render_value(art_animation);
 
-      animation.dist       = (f+move.directional[3]) * sinf(-move.radial[5]+move.radial[3]+(distance[x][y] / (s)));
-      animation.angle      = 1 * polar_theta[x][y];
-      animation.z          = 2000;
-      animation.scale_x    = 0.1 ;
-      animation.scale_y    = 0.1 ;
-      animation.offset_z   = -10 ;
-      animation.offset_y   = 20 * move.linear[3];
-      animation.offset_x   = 10;
-      animation.low_limit  = 0;
-      show5                = render_value(animation);
+      art_animation.dist       = (f+move.directional[3]) * sinf(-move.radial[5]+move.radial[3]+(distance[x][y] / (s)));
+      art_animation.angle      = 1 * polar_theta[x][y];
+      art_animation.z          = 2000;
+      art_animation.scale_x    = 0.1 ;
+      art_animation.scale_y    = 0.1 ;
+      art_animation.offset_z   = -10 ;
+      art_animation.offset_y   = 20 * move.linear[3];
+      art_animation.offset_x   = 10;
+      art_animation.low_limit  = 0;
+      show5                = render_value(art_animation);
 
       show6 = screen(show4, show5);
       show7 = screen(show2, show3);
@@ -3309,16 +3309,16 @@ void Module_Experiment1() {
   for (int x = 0; x < num_x; x++) {
     for (int y = 0; y < num_y; y++) {
 
-      animation.dist       = distance[x][y] + 20 * move.directional[0];
-      animation.angle      = move.noise_angle[0] + move.noise_angle[1] + polar_theta[x][y];
-      animation.z          = 5;
-      animation.scale_x    = 0.1 ;
-      animation.scale_y    = 0.1 ;
-      animation.offset_z   = -10 ;
-      animation.offset_y   = 20 * move.linear[2];
-      animation.offset_x   = 10;
-      animation.low_limit  = 0;
-      show1                = render_value(animation);
+      art_animation.dist       = distance[x][y] + 20 * move.directional[0];
+      art_animation.angle      = move.noise_angle[0] + move.noise_angle[1] + polar_theta[x][y];
+      art_animation.z          = 5;
+      art_animation.scale_x    = 0.1 ;
+      art_animation.scale_y    = 0.1 ;
+      art_animation.offset_z   = -10 ;
+      art_animation.offset_y   = 20 * move.linear[2];
+      art_animation.offset_x   = 10;
+      art_animation.low_limit  = 0;
+      show1                = render_value(art_animation);
 
       pixel.blue    = show1;
       
@@ -3347,16 +3347,16 @@ void Module_Experiment2() {
   for (int x = 0; x < num_x; x++) {
     for (int y = 0; y < num_y; y++) {
 
-      animation.dist       = distance[x][y] - ( 16 + move.directional[0] * 16);
-      animation.angle      = move.noise_angle[0] + move.noise_angle[1] + polar_theta[x][y];
-      animation.z          = 5;
-      animation.scale_x    = 0.1 ;
-      animation.scale_y    = 0.1 ;
-      animation.offset_z   = -10 ;
-      animation.offset_y   = 20 * move.linear[2];
-      animation.offset_x   = 10;
-      animation.low_limit  = 0;
-      show1                = render_value(animation);
+      art_animation.dist       = distance[x][y] - ( 16 + move.directional[0] * 16);
+      art_animation.angle      = move.noise_angle[0] + move.noise_angle[1] + polar_theta[x][y];
+      art_animation.z          = 5;
+      art_animation.scale_x    = 0.1 ;
+      art_animation.scale_y    = 0.1 ;
+      art_animation.offset_z   = -10 ;
+      art_animation.offset_y   = 20 * move.linear[2];
+      art_animation.offset_x   = 10;
+      art_animation.low_limit  = 0;
+      show1                = render_value(art_animation);
       
       pixel.red    = show1;
       pixel.green  = show1 - 80;
@@ -3387,16 +3387,16 @@ void Module_Experiment3() {
   for (int x = 0; x < num_x; x++) {
     for (int y = 0; y < num_y; y++) {
 
-      animation.dist       = distance[x][y] - (12 + move.directional[3]*4);
-      animation.angle      = move.noise_angle[0] + move.noise_angle[1] + polar_theta[x][y];
-      animation.z          = 5;
-      animation.scale_x    = 0.1 ;
-      animation.scale_y    = 0.1 ;
-      animation.offset_z   = -10 ;
-      animation.offset_y   = 20 * move.linear[2];
-      animation.offset_x   = 10;
-      animation.low_limit  = 0;
-      show1                = render_value(animation);
+      art_animation.dist       = distance[x][y] - (12 + move.directional[3]*4);
+      art_animation.angle      = move.noise_angle[0] + move.noise_angle[1] + polar_theta[x][y];
+      art_animation.z          = 5;
+      art_animation.scale_x    = 0.1 ;
+      art_animation.scale_y    = 0.1 ;
+      art_animation.offset_z   = -10 ;
+      art_animation.offset_y   = 20 * move.linear[2];
+      art_animation.offset_x   = 10;
+      art_animation.low_limit  = 0;
+      show1                = render_value(art_animation);
       
       pixel.red    = show1;
       pixel.green  = show1 - 80;
@@ -3422,19 +3422,19 @@ void Zoom2() { // nice one
   for (int x = 0; x < num_x; x++) {
     for (int y = 0; y < num_y; y++) {
       
-      animation.dist       = (distance[x][y] * distance[x][y])/2;
-      animation.angle      = polar_theta[x][y];
+      art_animation.dist       = (distance[x][y] * distance[x][y])/2;
+      art_animation.angle      = polar_theta[x][y];
       
-      animation.scale_x    = 0.005;
-      animation.scale_y    = 0.005;
+      art_animation.scale_x    = 0.005;
+      art_animation.scale_y    = 0.005;
       
-      animation.offset_y   = -10*move.linear[0];
-      animation.offset_x   = 0;
-      animation.offset_z   = 0.1*move.linear[0];
+      art_animation.offset_y   = -10*move.linear[0];
+      art_animation.offset_x   = 0;
+      art_animation.offset_z   = 0.1*move.linear[0];
       
-      animation.z          = 0;
-      animation.low_limit  = 0;
-      float show1          = render_value(animation);
+      art_animation.z          = 0;
+      art_animation.low_limit  = 0;
+      float show1          = render_value(art_animation);
 
   
       //float linear = 1;//(y+1)/(num_y-1.f);
@@ -3471,38 +3471,38 @@ void Module_Experiment4() {
 
       float s = 0.8;
 
-      animation.dist       = (distance[x][y] * distance[x][y])*0.7;
-      animation.angle      = polar_theta[x][y];
-      animation.z          = 5;
-      animation.scale_x    = 0.004 * s;
-      animation.scale_y    = 0.003 * s;
-      animation.offset_z   = 0.1*move.linear[2] ;
-      animation.offset_y   = -20 * move.linear[2];
-      animation.offset_x   = 10;
-      animation.low_limit  = 0;
-      show1                = render_value(animation);
+      art_animation.dist       = (distance[x][y] * distance[x][y])*0.7;
+      art_animation.angle      = polar_theta[x][y];
+      art_animation.z          = 5;
+      art_animation.scale_x    = 0.004 * s;
+      art_animation.scale_y    = 0.003 * s;
+      art_animation.offset_z   = 0.1*move.linear[2] ;
+      art_animation.offset_y   = -20 * move.linear[2];
+      art_animation.offset_x   = 10;
+      art_animation.low_limit  = 0;
+      show1                = render_value(art_animation);
 
-      animation.dist       = (distance[x][y] * distance[x][y])*0.8;
-      animation.angle      = polar_theta[x][y];
-      animation.z          = 50;
-      animation.scale_x    = 0.004 * s;
-      animation.scale_y    = 0.003 * s;
-      animation.offset_z   = 0.1*move.linear[3] ;
-      animation.offset_y   = -20 * move.linear[3];
-      animation.offset_x   = 100;
-      animation.low_limit  = 0;
-      show2                = render_value(animation);
+      art_animation.dist       = (distance[x][y] * distance[x][y])*0.8;
+      art_animation.angle      = polar_theta[x][y];
+      art_animation.z          = 50;
+      art_animation.scale_x    = 0.004 * s;
+      art_animation.scale_y    = 0.003 * s;
+      art_animation.offset_z   = 0.1*move.linear[3] ;
+      art_animation.offset_y   = -20 * move.linear[3];
+      art_animation.offset_x   = 100;
+      art_animation.low_limit  = 0;
+      show2                = render_value(art_animation);
 
-      animation.dist       = (distance[x][y] * distance[x][y])*0.9;
-      animation.angle      = polar_theta[x][y];
-      animation.z          = 5000;
-      animation.scale_x    = 0.004 * s;
-      animation.scale_y    = 0.003 * s;
-      animation.offset_z   = 0.1*move.linear[4] ;
-      animation.offset_y   = -20 * move.linear[4];
-      animation.offset_x   = 1000;
-      animation.low_limit  = 0;
-      show3                = render_value(animation);
+      art_animation.dist       = (distance[x][y] * distance[x][y])*0.9;
+      art_animation.angle      = polar_theta[x][y];
+      art_animation.z          = 5000;
+      art_animation.scale_x    = 0.004 * s;
+      art_animation.scale_y    = 0.003 * s;
+      art_animation.offset_z   = 0.1*move.linear[4] ;
+      art_animation.offset_y   = -20 * move.linear[4];
+      art_animation.offset_x   = 1000;
+      art_animation.low_limit  = 0;
+      show3                = render_value(art_animation);
 
 
       // overlapping color mapping
@@ -3547,16 +3547,16 @@ void Module_Experiment5() {
 
       float s = 1.5;
 
-      animation.dist       = distance[x][y] + sinf(0.5*distance[x][y]-move.radial[3]);
-      animation.angle      = polar_theta[x][y];
-      animation.z          = 5;
-      animation.scale_x    = 0.1 * s;
-      animation.scale_y    = 0.1 * s;
-      animation.offset_z   = 0.1*move.linear[0] ;
-      animation.offset_y   = -20 * move.linear[0];
-      animation.offset_x   = 10;
-      animation.low_limit  = 0;
-      show1                = render_value(animation);
+      art_animation.dist       = distance[x][y] + sinf(0.5*distance[x][y]-move.radial[3]);
+      art_animation.angle      = polar_theta[x][y];
+      art_animation.z          = 5;
+      art_animation.scale_x    = 0.1 * s;
+      art_animation.scale_y    = 0.1 * s;
+      art_animation.offset_z   = 0.1*move.linear[0] ;
+      art_animation.offset_y   = -20 * move.linear[0];
+      art_animation.offset_x   = 10;
+      art_animation.low_limit  = 0;
+      show1                = render_value(art_animation);
 
       
       
@@ -3593,27 +3593,27 @@ void Module_Experiment6() {
 
       float s = 0.8;
 
-      animation.dist       = distance[x][y] + sinf(0.25*distance[x][y]-move.radial[3]);
-      animation.angle      = polar_theta[x][y];
-      animation.z          = 5;
-      animation.scale_x    = 0.1 * s;
-      animation.scale_y    = 0.1 * s;
-      animation.offset_z   = 0.1*move.linear[0] ;
-      animation.offset_y   = -20 * move.linear[0];
-      animation.offset_x   = 10;
-      animation.low_limit  = 0;
-      show1                = render_value(animation);
+      art_animation.dist       = distance[x][y] + sinf(0.25*distance[x][y]-move.radial[3]);
+      art_animation.angle      = polar_theta[x][y];
+      art_animation.z          = 5;
+      art_animation.scale_x    = 0.1 * s;
+      art_animation.scale_y    = 0.1 * s;
+      art_animation.offset_z   = 0.1*move.linear[0] ;
+      art_animation.offset_y   = -20 * move.linear[0];
+      art_animation.offset_x   = 10;
+      art_animation.low_limit  = 0;
+      show1                = render_value(art_animation);
 
-      animation.dist       = distance[x][y] + sinf(0.24*distance[x][y]-move.radial[4]);
-      animation.angle      = polar_theta[x][y];
-      animation.z          = 10;
-      animation.scale_x    = 0.1 * s;
-      animation.scale_y    = 0.1 * s;
-      animation.offset_z   = 0.1*move.linear[1] ;
-      animation.offset_y   = -20 * move.linear[1];
-      animation.offset_x   = 10;
-      animation.low_limit  = 0;
-      show2                = render_value(animation);
+      art_animation.dist       = distance[x][y] + sinf(0.24*distance[x][y]-move.radial[4]);
+      art_animation.angle      = polar_theta[x][y];
+      art_animation.z          = 10;
+      art_animation.scale_x    = 0.1 * s;
+      art_animation.scale_y    = 0.1 * s;
+      art_animation.offset_z   = 0.1*move.linear[1] ;
+      art_animation.offset_y   = -20 * move.linear[1];
+      art_animation.offset_x   = 10;
+      art_animation.low_limit  = 0;
+      show2                = render_value(art_animation);
 
       
       /*
@@ -3657,27 +3657,27 @@ void Module_Experiment7() {
 
       float s = 0.7;
 
-      animation.dist       = 2+distance[x][y] + 2*sinf(0.25*distance[x][y]-move.radial[3]);
-      animation.angle      = polar_theta[x][y];
-      animation.z          = 5;
-      animation.scale_x    = 0.1 * s;
-      animation.scale_y    = 0.1 * s;
-      animation.offset_z   = 10*move.linear[0] ;
-      animation.offset_y   = -20 * move.linear[0];
-      animation.offset_x   = 10;
-      animation.low_limit  = 0;
-      show1                = render_value(animation);
+      art_animation.dist       = 2+distance[x][y] + 2*sinf(0.25*distance[x][y]-move.radial[3]);
+      art_animation.angle      = polar_theta[x][y];
+      art_animation.z          = 5;
+      art_animation.scale_x    = 0.1 * s;
+      art_animation.scale_y    = 0.1 * s;
+      art_animation.offset_z   = 10*move.linear[0] ;
+      art_animation.offset_y   = -20 * move.linear[0];
+      art_animation.offset_x   = 10;
+      art_animation.low_limit  = 0;
+      show1                = render_value(art_animation);
 
-      animation.dist       = 2+distance[x][y] + 2*sinf(0.24*distance[x][y]-move.radial[4]);
-      animation.angle      = polar_theta[x][y];
-      animation.z          = 10;
-      animation.scale_x    = 0.1 * s;
-      animation.scale_y    = 0.1 * s;
-      animation.offset_z   = 0.1*move.linear[1] ;
-      animation.offset_y   = -20 * move.linear[1];
-      animation.offset_x   = 10;
-      animation.low_limit  = 0;
-      show2                = render_value(animation);
+      art_animation.dist       = 2+distance[x][y] + 2*sinf(0.24*distance[x][y]-move.radial[4]);
+      art_animation.angle      = polar_theta[x][y];
+      art_animation.z          = 10;
+      art_animation.scale_x    = 0.1 * s;
+      art_animation.scale_y    = 0.1 * s;
+      art_animation.offset_z   = 0.1*move.linear[1] ;
+      art_animation.offset_y   = -20 * move.linear[1];
+      art_animation.offset_x   = 10;
+      art_animation.low_limit  = 0;
+      show2                = render_value(art_animation);
 
       
       /*
@@ -3734,38 +3734,38 @@ void Module_Experiment8() {
       float s = 0.4; // scale
       float r = 1.5; // scroll speed
 
-      animation.dist       = 3+distance[x][y] + 3*sinf(0.25*distance[x][y]-move.radial[3]);
-      animation.angle      = polar_theta[x][y] + move.noise_angle[0] + move.noise_angle[6];
-      animation.z          = 5;
-      animation.scale_x    = 0.1 * s;
-      animation.scale_y    = 0.1 * s;
-      animation.offset_z   = 10*move.linear[0] ;
-      animation.offset_y   = -5 * r * move.linear[0];
-      animation.offset_x   = 10;
-      animation.low_limit  = 0;
-      show1                = render_value(animation);
+      art_animation.dist       = 3+distance[x][y] + 3*sinf(0.25*distance[x][y]-move.radial[3]);
+      art_animation.angle      = polar_theta[x][y] + move.noise_angle[0] + move.noise_angle[6];
+      art_animation.z          = 5;
+      art_animation.scale_x    = 0.1 * s;
+      art_animation.scale_y    = 0.1 * s;
+      art_animation.offset_z   = 10*move.linear[0] ;
+      art_animation.offset_y   = -5 * r * move.linear[0];
+      art_animation.offset_x   = 10;
+      art_animation.low_limit  = 0;
+      show1                = render_value(art_animation);
 
-      animation.dist       = 4+distance[x][y] + 4*sinf(0.24*distance[x][y]-move.radial[4]);
-      animation.angle      = polar_theta[x][y] + move.noise_angle[1] + move.noise_angle[6];
-      animation.z          = 5;
-      animation.scale_x    = 0.1 * s;
-      animation.scale_y    = 0.1 * s;
-      animation.offset_z   = 0.1*move.linear[1] ;
-      animation.offset_y   = -5 * r * move.linear[1];
-      animation.offset_x   = 100;
-      animation.low_limit  = 0;
-      show2                = render_value(animation);
+      art_animation.dist       = 4+distance[x][y] + 4*sinf(0.24*distance[x][y]-move.radial[4]);
+      art_animation.angle      = polar_theta[x][y] + move.noise_angle[1] + move.noise_angle[6];
+      art_animation.z          = 5;
+      art_animation.scale_x    = 0.1 * s;
+      art_animation.scale_y    = 0.1 * s;
+      art_animation.offset_z   = 0.1*move.linear[1] ;
+      art_animation.offset_y   = -5 * r * move.linear[1];
+      art_animation.offset_x   = 100;
+      art_animation.low_limit  = 0;
+      show2                = render_value(art_animation);
 
-      animation.dist       = 5+distance[x][y] + 5*sinf(0.23*distance[x][y]-move.radial[5]);
-      animation.angle      = polar_theta[x][y] + move.noise_angle[2] + move.noise_angle[6];
-      animation.z          = 5;
-      animation.scale_x    = 0.1 * s;
-      animation.scale_y    = 0.1 * s;
-      animation.offset_z   = 0.1*move.linear[2] ;
-      animation.offset_y   = -5 * r * move.linear[2];
-      animation.offset_x   = 1000;
-      animation.low_limit  = 0;
-      show3                = render_value(animation);
+      art_animation.dist       = 5+distance[x][y] + 5*sinf(0.23*distance[x][y]-move.radial[5]);
+      art_animation.angle      = polar_theta[x][y] + move.noise_angle[2] + move.noise_angle[6];
+      art_animation.z          = 5;
+      art_animation.scale_x    = 0.1 * s;
+      art_animation.scale_y    = 0.1 * s;
+      art_animation.offset_z   = 0.1*move.linear[2] ;
+      art_animation.offset_y   = -5 * r * move.linear[2];
+      art_animation.offset_x   = 1000;
+      art_animation.low_limit  = 0;
+      show3                = render_value(art_animation);
 
       show4 = colordodge(show1, show2);
 
@@ -3814,17 +3814,17 @@ void Module_Experiment9() {
   for (int x = 0; x < num_x; x++) {
     for (int y = 0; y < num_y; y++) {
 
-      animation.dist       = distance[x][y];
-      animation.angle      = polar_theta[x][y] + move.radial[1];
-      animation.z          = 5;
-      animation.scale_x    = 0.001;
-      animation.scale_y    = 0.1;
-      animation.scale_z    = 0.1;
-      animation.offset_y   = -10*move.linear[0];
-      animation.offset_x   = 20;
-      animation.offset_z   = 10;
-      animation.low_limit  = 0;
-      show1                = render_value(animation);
+      art_animation.dist       = distance[x][y];
+      art_animation.angle      = polar_theta[x][y] + move.radial[1];
+      art_animation.z          = 5;
+      art_animation.scale_x    = 0.001;
+      art_animation.scale_y    = 0.1;
+      art_animation.scale_z    = 0.1;
+      art_animation.offset_y   = -10*move.linear[0];
+      art_animation.offset_x   = 20;
+      art_animation.offset_z   = 10;
+      art_animation.low_limit  = 0;
+      show1                = render_value(art_animation);
 
       pixel.red    = 10*show1;
     
@@ -3870,38 +3870,38 @@ void Module_Experiment10() {
       float s = 0.4; // scale
       float r = 1.5; // scroll speed
 
-      animation.dist       = 3+distance[x][y] + 3*sinf(0.25*distance[x][y]-move.radial[3]);
-      animation.angle      = polar_theta[x][y] + move.noise_angle[0] + move.noise_angle[6];
-      animation.z          = 5;
-      animation.scale_x    = 0.1 * s;
-      animation.scale_y    = 0.1 * s;
-      animation.offset_z   = 10*move.linear[0] ;
-      animation.offset_y   = -5 * r * move.linear[0];
-      animation.offset_x   = 10;
-      animation.low_limit  = 0;
-      show1                = render_value(animation);
+      art_animation.dist       = 3+distance[x][y] + 3*sinf(0.25*distance[x][y]-move.radial[3]);
+      art_animation.angle      = polar_theta[x][y] + move.noise_angle[0] + move.noise_angle[6];
+      art_animation.z          = 5;
+      art_animation.scale_x    = 0.1 * s;
+      art_animation.scale_y    = 0.1 * s;
+      art_animation.offset_z   = 10*move.linear[0] ;
+      art_animation.offset_y   = -5 * r * move.linear[0];
+      art_animation.offset_x   = 10;
+      art_animation.low_limit  = 0;
+      show1                = render_value(art_animation);
 
-      animation.dist       = 4+distance[x][y] + 4*sinf(0.24*distance[x][y]-move.radial[4]);
-      animation.angle      = polar_theta[x][y] + move.noise_angle[1] + move.noise_angle[6];
-      animation.z          = 5;
-      animation.scale_x    = 0.1 * s;
-      animation.scale_y    = 0.1 * s;
-      animation.offset_z   = 0.1*move.linear[1] ;
-      animation.offset_y   = -5 * r * move.linear[1];
-      animation.offset_x   = 100;
-      animation.low_limit  = 0;
-      show2                = render_value(animation);
+      art_animation.dist       = 4+distance[x][y] + 4*sinf(0.24*distance[x][y]-move.radial[4]);
+      art_animation.angle      = polar_theta[x][y] + move.noise_angle[1] + move.noise_angle[6];
+      art_animation.z          = 5;
+      art_animation.scale_x    = 0.1 * s;
+      art_animation.scale_y    = 0.1 * s;
+      art_animation.offset_z   = 0.1*move.linear[1] ;
+      art_animation.offset_y   = -5 * r * move.linear[1];
+      art_animation.offset_x   = 100;
+      art_animation.low_limit  = 0;
+      show2                = render_value(art_animation);
 
-      animation.dist       = 5+distance[x][y] + 5*sinf(0.23*distance[x][y]-move.radial[5]);
-      animation.angle      = polar_theta[x][y] + move.noise_angle[2] + move.noise_angle[6];
-      animation.z          = 5;
-      animation.scale_x    = 0.1 * s;
-      animation.scale_y    = 0.1 * s;
-      animation.offset_z   = 0.1*move.linear[2] ;
-      animation.offset_y   = -5 * r * move.linear[2];
-      animation.offset_x   = 1000;
-      animation.low_limit  = 0;
-      show3                = render_value(animation);
+      art_animation.dist       = 5+distance[x][y] + 5*sinf(0.23*distance[x][y]-move.radial[5]);
+      art_animation.angle      = polar_theta[x][y] + move.noise_angle[2] + move.noise_angle[6];
+      art_animation.z          = 5;
+      art_animation.scale_x    = 0.1 * s;
+      art_animation.scale_y    = 0.1 * s;
+      art_animation.offset_z   = 0.1*move.linear[2] ;
+      art_animation.offset_y   = -5 * r * move.linear[2];
+      art_animation.offset_x   = 1000;
+      art_animation.low_limit  = 0;
+      show3                = render_value(art_animation);
 
       show4 = colordodge(show1, show2);
 
