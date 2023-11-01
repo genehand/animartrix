@@ -373,7 +373,13 @@ rgb rgb_sanity_check(rgb &pixel) {
       //if (pixel.red < 0)     pixel.red = fabsf(pixel.red);
       //if (pixel.green < 0) pixel.green = fabsf(pixel.green);
       //if (pixel.blue < 0)   pixel.blue = fabsf(pixel.blue);
-      
+
+      // Can never be negative colour
+      if (pixel.red < 0)     pixel.red = 0;
+      if (pixel.green < 0) pixel.green = 0;
+      if (pixel.blue < 0)   pixel.blue = 0;
+
+  
       // discard everything above the valid 8 bit colordepth 0-255 range
       if (pixel.red   > 255)   pixel.red = 255;
       if (pixel.green > 255) pixel.green = 255;
@@ -1043,6 +1049,7 @@ void Lava1() {
 
       pixel.red = linear*show2;
       pixel.green = 0.1*linear*(show2-show3);
+      pixel.blue = 0;
       
       pixel = rgb_sanity_check(pixel);
 
@@ -1360,6 +1367,7 @@ void Hot_Blob() { // nice one
       
       pixel.red   = radial  * show2;
       pixel.green   = linear * radial* 0.3* (show2-show4);
+      pixel.blue = 0;
       
       pixel = rgb_sanity_check(pixel);
      setPixelColor(x, y, pixel);
@@ -1400,6 +1408,7 @@ void Zoom() { // nice one
       
       pixel.red   = show1*linear;
       pixel.green   = 0;
+      pixel.blue = 0;
       
       
       pixel = rgb_sanity_check(pixel);
@@ -3042,6 +3051,8 @@ void Complex_Kaleido_5() {
       float radial = (radius-distance[x][y])/distance[x][y];
      
       pixel.red    = show1 * radial;
+      pixel.green = 0;
+      pixel.blue = 0;
      
       pixel = rgb_sanity_check(pixel);
       
@@ -3100,6 +3111,7 @@ void Complex_Kaleido_6() {
       //float radial = (radius-distance[x][y])/distance[x][y];
      
       pixel.red    = show1;
+      pixel.green  = 0;
       pixel.blue   = show2;
      
       pixel = rgb_sanity_check(pixel);
@@ -3185,6 +3197,7 @@ void Water() {
       
       pixel.blue    = (0.7*show2+0.6*show3+0.5*show4);
       pixel.red     = pixel.blue-40;
+      pixel.green   = 0;
       //pixel.red     = radial*show3;
       //pixel.green     = 0.9*radial*show4;
       
@@ -3278,8 +3291,9 @@ void Parametric_Water() {
       //pixel.red    = show6;
       //pixel.blue = show7;
       
-      pixel.blue    = (0.3*show6+0.7*show7)*radial;
       pixel.red     = pixel.blue-40;
+      pixel.green   = 0;
+      pixel.blue    = (0.3*show6+0.7*show7)*radial;
       
       
      
@@ -3320,6 +3334,8 @@ void Module_Experiment1() {
       art_animation.low_limit  = 0;
       show1                = render_value(art_animation);
 
+      pixel.red     = 0;
+      pixel.green   = 0;
       pixel.blue    = show1;
       
       pixel = rgb_sanity_check(pixel);
@@ -3440,6 +3456,7 @@ void Zoom2() { // nice one
       //float linear = 1;//(y+1)/(num_y-1.f);
       
       pixel.red   = show1;
+      pixel.green = 0;
       pixel.blue   = 40-show1;
       
       
@@ -3561,6 +3578,8 @@ void Module_Experiment5() {
       
       
       pixel.red    = show1;
+      pixel.green  = 0;
+      pixel.blue   = 0;
       
       
       pixel = rgb_sanity_check(pixel);
@@ -3827,6 +3846,8 @@ void Module_Experiment9() {
       show1                = render_value(art_animation);
 
       pixel.red    = 10*show1;
+      pixel.green  = 0;
+      pixel.blue   = 0;
     
       pixel = rgb_sanity_check(pixel);
       
