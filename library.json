@@ -1,0 +1,22 @@
+{
+  "name": "ANIMartRIX",
+  "version": "1.0.0",
+  "description": "High fidelity & high-res LED animations for microcontrollers with hardware FPU",
+  "keywords": "LED, animations, ESP32",
+  "repository":
+  {
+    "type": "git",
+    "url": "https://github.com/genehand/animartrix.git"
+  },
+  "authors":
+  [
+    {
+      "name": "Stefan Petrick",
+      "url": "https://github.com/StefanPetrick/animartrix",
+      "maintainer": true
+    }
+  ],
+  "homepage": "https://github.com/StefanPetrick/animartrix",
+  "frameworks": "*",
+  "platforms": "*"
+}
